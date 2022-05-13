@@ -1,7 +1,7 @@
 import { defs, tiny } from './examples/common.js';
 
 import { Transforms_Sandbox } from './examples/transforms-sandbox.js';
-import { Assignment2, Assignment4 } from './assignment2.js';
+import { BruinTempleRun } from './assignment2.js';
 // Pull these names into this module's scope for convenience:
 const {
 	Vector,
@@ -33,7 +33,7 @@ const {
 
 const Minimal_Webgl_Demo = defs.Minimal_Webgl_Demo;
 
-Object.assign(defs, { Transforms_Sandbox }, { Assignment2 });
+Object.assign(defs, { Transforms_Sandbox }, { BruinTempleRun });
 
 // ******************** End extra step
 
@@ -41,7 +41,7 @@ Object.assign(defs, { Transforms_Sandbox }, { Assignment2 });
 
 // const Main_Scene = Transforms_Sandbox;
 // const Main_Scene = Assignment2;
-const Main_Scene = Assignment4;
+const Main_Scene = BruinTempleRun;
 const Additional_Scenes = [];
 
 export {
