@@ -303,12 +303,7 @@ export class BruinTempleRun extends Base_Scene {
 
 	make_control_panel() {
 		this.key_triggered_button('Pause', ['k'], () => {
-			// this.paused = !this.paused;
-			if (this.speed === SPEED) {
-				this.speed = 0;
-			} else {
-				this.speed = SPEED;
-			}
+			this.paused = !this.paused;
 		});
 		this.key_triggered_button('Right', ['l'], () => {
 			if (this.playerColumn === LEFT) {
@@ -359,13 +354,16 @@ export class BruinTempleRun extends Base_Scene {
 		// while (!this.paused) {
 		// 	this.playerZDistance = this.speed * t;
 		// }
+		if (!this.paused) {
+			this.playerZDistance = -1 * this.t * this.speed;
+		}
 
 		// draw player
 		this.draw_box(
 			context,
 			program_state,
 			this.playerColumn,
-			-1 * this.t * this.speed,
+			this.playerZDistance,
 			PLAYER
 		);
 
