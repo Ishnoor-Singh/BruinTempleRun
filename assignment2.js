@@ -248,15 +248,6 @@ class Base_Scene extends Scene {
 		];
 	}
 }
-function generateRandomColor() {
-	var letters = '0123456789ABCDEF';
-	var color = '#';
-	for (var i = 0; i < 6; i++) {
-		color += letters[Math.floor(Math.random() * 16)];
-	}
-	return color;
-}
-
 const PLAYER = 'player';
 const OBSTACLE = 'obstacle';
 const COIN = 'coin';
@@ -278,7 +269,7 @@ export class BruinTempleRun extends Base_Scene {
 
 	constructor() {
 		super();
-		this.speed = 1;
+		this.speed = SPEED;
 		this.paused = false;
 		this.colors = {
 			player: '#1976d2',
@@ -296,6 +287,36 @@ export class BruinTempleRun extends Base_Scene {
 			{
 				type: OBSTACLE,
 				z: -4,
+				column: RIGHT,
+			},
+			{
+				type: COIN,
+				z: -8,
+				column: LEFT,
+			},
+			{
+				type: OBSTACLE,
+				z: -14,
+				column: RIGHT,
+			},
+			{
+				type: COIN,
+				z: -20,
+				column: LEFT,
+			},
+			{
+				type: OBSTACLE,
+				z: -24,
+				column: RIGHT,
+			},
+			{
+				type: COIN,
+				z: -28,
+				column: LEFT,
+			},
+			{
+				type: OBSTACLE,
+				z: -42,
 				column: RIGHT,
 			},
 		];
@@ -329,6 +350,33 @@ export class BruinTempleRun extends Base_Scene {
 		}
 	}
 
+	getVectorLocation(column, zDistsance) {
+		let model_transform = Mat4.identity();
+		model_transform = model_transform.times(
+			Mat4.translation(column * COLUMN_WIDTH, 0, zDistsance)
+		);
+		return model_transform;
+	}
+
+	draw_floor(context, program_state) {
+		const FLOOR_LENGTH = 10000;
+		const color = hex_color('#d6d7d8');
+		let model_transform = Mat4.identity();
+		model_transform = model_transform.times(
+			Mat4.scale(3 * COLUMN_WIDTH, 0.1, FLOOR_LENGTH)
+		);
+		model_transform = model_transform.times(Mat4.translation(0, -10, -1));
+
+		this.shapes.cube.draw(
+			context,
+			program_state,
+			model_transform,
+			this.materials.plastic.override({ color: color })
+		);
+
+		return model_transform;
+	}
+
 	draw_box(context, program_state, column, zDistsance, type) {
 		const color = hex_color(this.colors[type]);
 		let model_transform = Mat4.identity();
@@ -349,11 +397,6 @@ export class BruinTempleRun extends Base_Scene {
 	display(context, program_state) {
 		super.display(context, program_state);
 		this.t = program_state.animation_time / 1000;
-
-		// prev_transform = prev_transform.times(Mat4.scale(1, 1.5, 1));
-		// while (!this.paused) {
-		// 	this.playerZDistance = this.speed * t;
-		// }
 		if (!this.paused) {
 			this.playerZDistance = -1 * this.t * this.speed;
 		}
@@ -367,6 +410,7 @@ export class BruinTempleRun extends Base_Scene {
 			PLAYER
 		);
 
+		// draw objects
 		this.objects.forEach((object) => {
 			this.draw_box(
 				context,
@@ -376,5 +420,20 @@ export class BruinTempleRun extends Base_Scene {
 				object.type
 			);
 		});
+
+		// draw floor
+		this.draw_floor(context, program_state);
+
+		// set camera
+		let desired = Mat4.inverse(
+			this.getVectorLocation(
+				this.playerColumn,
+				this.playerZDistance
+			).times(Mat4.translation(0, 7, 20))
+		);
+		desired = desired.map((x, i) =>
+			Vector.from(program_state.camera_inverse[i]).mix(x, 0.1)
+		);
+		program_state.set_camera(desired);
 	}
 }
