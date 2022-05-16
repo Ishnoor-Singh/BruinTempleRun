@@ -278,6 +278,8 @@ export class BruinTempleRun extends Base_Scene {
 		};
 		this.playerZDistance = 1;
 		this.playerColumn = MIDDLE;
+		this.time_elapsed = 0;
+		this.t = 0;
 		this.objects = [
 			{
 				type: COIN,
@@ -340,6 +342,10 @@ export class BruinTempleRun extends Base_Scene {
 				this.playerColumn = LEFT;
 			}
 		});
+		this.key_triggered_button('Restart', ['r'], () => {
+			this.time_elapsed = 0;
+			this.playerColumn = MIDDLE;
+		});
 	}
 
 	get_angle(t) {
@@ -396,12 +402,14 @@ export class BruinTempleRun extends Base_Scene {
 
 	display(context, program_state) {
 		super.display(context, program_state);
+		this.prevT = this.t;
 		this.t = program_state.animation_time / 1000;
 		if (!this.paused) {
-			this.playerZDistance = -1 * this.t * this.speed;
+			this.time_elapsed += this.t - this.prevT;
+			// console.log(this.time_elapsed);
+			this.playerZDistance = -1 * this.speed * this.time_elapsed;
 		}
 
-		// draw player
 		this.draw_box(
 			context,
 			program_state,
