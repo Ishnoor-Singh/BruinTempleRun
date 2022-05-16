@@ -329,17 +329,21 @@ export class BruinTempleRun extends Base_Scene {
 			this.paused = !this.paused;
 		});
 		this.key_triggered_button('Right', ['l'], () => {
-			if (this.playerColumn === LEFT) {
-				this.playerColumn = MIDDLE;
-			} else if (this.playerColumn === MIDDLE) {
-				this.playerColumn = RIGHT;
+			if (!this.paused) {
+				if (this.playerColumn === LEFT) {
+					this.playerColumn = MIDDLE;
+				} else if (this.playerColumn === MIDDLE) {
+					this.playerColumn = RIGHT;
+				}
 			}
 		});
 		this.key_triggered_button('Left', ['j'], () => {
-			if (this.playerColumn === RIGHT) {
-				this.playerColumn = MIDDLE;
-			} else if (this.playerColumn === MIDDLE) {
-				this.playerColumn = LEFT;
+			if (!this.paused) {
+				if (this.playerColumn === RIGHT) {
+					this.playerColumn = MIDDLE;
+				} else if (this.playerColumn === MIDDLE) {
+					this.playerColumn = LEFT;
+				}
 			}
 		});
 		this.key_triggered_button('Restart', ['r'], () => {
