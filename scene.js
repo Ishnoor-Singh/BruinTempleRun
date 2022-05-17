@@ -40,18 +40,12 @@ class Base_Scene extends Scene {
 				diffusivity: 0.6,
 				color: hex_color('#ffffff'),
 			}),
-			ground: new Material(new defs.Textured_Phong(), {
-				color: hex_color('#ffffff'),
-				ambient: 0.5,
-				diffusivity: 0.1,
-				specularity: 0.1,
+			ground: new Material(new Textured_Phong(1), {
+				ambient: 0.8,
 				texture: new Texture('assets/grasslight-big.jpg'),
 			}),
-			box: new Material(new defs.Textured_Phong(), {
-				color: hex_color('#ffffff'),
-				ambient: 0.5,
-				diffusivity: 0.1,
-				specularity: 0.1,
+			bricks: new Material(new Textured_Phong(1), {
+				ambient: 0.8,
 				texture: new Texture('assets/bricks.png'),
 			}),
 		};
@@ -93,7 +87,7 @@ const LEFT = -1;
 const MIDDLE = 0;
 const RIGHT = 1;
 
-const COLUMN_WIDTH = 5;
+const COLUMN_WIDTH = 6;
 const SPEED = 2;
 
 export class BruinRunScene extends Base_Scene {
@@ -139,32 +133,90 @@ export class BruinRunScene extends Base_Scene {
 		return model_transform;
 	}
 
-	drawFloor(context, program_state) {
-		const FLOOR_LENGTH = 10000;
-		const color = hex_color('#d6d7d8');
+	drawWalls(context, program_state) {
+		const FLOOR_LENGTH = 100;
+		const NUM_COLUMNS = 6;
 		let model_transform = Mat4.identity();
 		model_transform = model_transform.times(
-			Mat4.scale(3 * COLUMN_WIDTH, 0.1, FLOOR_LENGTH)
+			Mat4.translation(-NUM_COLUMNS * 2, 0, -1)
 		);
-		model_transform = model_transform.times(Mat4.translation(0, -10, -1));
 
-		this.shapes.cube.draw(
-			context,
-			program_state,
-			model_transform,
-			this.materials.plastic.override({ color: color })
-		);
+		for (let i = 0; i != FLOOR_LENGTH; i++) {
+			this.shapes.cube.draw(
+				context,
+				program_state,
+				model_transform,
+				this.materials.bricks
+			);
+			model_transform.post_multiply(
+				Mat4.translation(NUM_COLUMNS * 4 - 1, 0, 0)
+			);
+			this.shapes.cube.draw(
+				context,
+				program_state,
+				model_transform,
+				this.materials.bricks
+			);
+			model_transform.post_multiply(
+				Mat4.translation(-1 * NUM_COLUMNS * 4 + 1, 0, -2)
+			);
+		}
 
 		return model_transform;
 	}
 
-	drawOject(context, program_state, column, zDistsance, type) {
+	drawFloor(context, program_state) {
+		const FLOOR_LENGTH = 100;
+		const NUM_COLUMNS = 6;
+		let model_transform = Mat4.identity();
+		model_transform = model_transform.times(
+			Mat4.scale(2 * NUM_COLUMNS, 0.1, 1)
+		);
+		model_transform = model_transform.times(Mat4.translation(0, -10, -1));
+
+		for (let i = 0; i != FLOOR_LENGTH; i++) {
+			this.shapes.cube.draw(
+				context,
+				program_state,
+				model_transform,
+				this.materials.ground
+			);
+			model_transform.post_multiply(Mat4.translation(0, 0, -2));
+		}
+
+		return model_transform;
+	}
+
+	drawObject(context, program_state, column, zDistsance, type) {
 		const color = hex_color(this.colors[type]);
 		let model_transform = Mat4.identity();
 		model_transform = model_transform.times(
 			Mat4.translation(column * COLUMN_WIDTH, 0, zDistsance)
 		);
+		type === COIN
+			? this.shapes.cube.draw(
+					context,
+					program_state,
+					model_transform
+						.times(Mat4.scale(0.3, 0.3, 0.3))
+						.times(Mat4.translation(0, 1.7, 0)),
+					this.materials.plastic.override({ color: color })
+			  )
+			: this.shapes.cube.draw(
+					context,
+					program_state,
+					model_transform,
+					this.materials.bricks
+			  );
 
+		return model_transform;
+	}
+	drawPlayer(context, program_state, column, zDistsance, type) {
+		const color = hex_color(this.colors[type]);
+		let model_transform = Mat4.identity();
+		model_transform = model_transform.times(
+			Mat4.translation(column * COLUMN_WIDTH, 0, zDistsance)
+		);
 		this.shapes.cube.draw(
 			context,
 			program_state,
@@ -183,7 +235,7 @@ export class BruinRunScene extends Base_Scene {
 			this.game.addTime(this.t - this.prevT);
 		}
 
-		this.drawOject(
+		this.drawPlayer(
 			context,
 			program_state,
 			this.game.getPlayerColumn(),
@@ -193,7 +245,7 @@ export class BruinRunScene extends Base_Scene {
 
 		// draw objects
 		this.game.getObjects().forEach((object) => {
-			this.drawOject(
+			this.drawObject(
 				context,
 				program_state,
 				object.column,
@@ -204,6 +256,7 @@ export class BruinRunScene extends Base_Scene {
 
 		// draw floor
 		this.drawFloor(context, program_state);
+		this.drawWalls(context, program_state);
 
 		// set camera
 		let desired = Mat4.inverse(
@@ -216,5 +269,16 @@ export class BruinRunScene extends Base_Scene {
 			Vector.from(program_state.camera_inverse[i]).mix(x, 0.1)
 		);
 		program_state.set_camera(desired);
+
+		// setting light
+		const player_light_position = vec4(
+			this.game.getPlayerColumn() * COLUMN_WIDTH,
+			10,
+			this.game.getPlayerZDistance(),
+			1
+		);
+		program_state.lights = [
+			new Light(player_light_position, color(1, 1, 1, 1), 1000),
+		];
 	}
 }
