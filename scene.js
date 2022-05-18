@@ -31,6 +31,7 @@ class Base_Scene extends Scene {
 		// At the beginning of our program, load one of each of these shape definitions onto the GPU.
 		this.shapes = {
 			cube: new Cube(),
+			sphere: new defs.Subdivision_Sphere(4),
 		};
 
 		// *** Materials
@@ -46,7 +47,7 @@ class Base_Scene extends Scene {
 			}),
 			bricks: new Material(new Textured_Phong(1), {
 				ambient: 0.8,
-				texture: new Texture('assets/bricks.png'),
+				texture: new Texture('assets/bricks2.jpg'),
 			}),
 			villager: new Material(new Textured_Phong(1), {
 				ambient: 0.8,
@@ -133,6 +134,12 @@ export class BruinRunScene extends Base_Scene {
 		this.key_triggered_button('Restart', ['r'], () => {
 			this.game.restartGame();
 		});
+		this.key_triggered_button('Down', ['k'], () => {
+			this.game.toggleDuck();
+			setTimeout(() => {
+				this.game.toggleDuck();
+			}, 1000);
+		});
 	}
 
 	getVectorLocation(column, zDistsance) {
@@ -148,7 +155,7 @@ export class BruinRunScene extends Base_Scene {
 		const NUM_COLUMNS = 6;
 		let model_transform = Mat4.identity();
 		model_transform = model_transform.times(
-			Mat4.translation(-NUM_COLUMNS * 2, 0, -1)
+			Mat4.translation(-NUM_COLUMNS * 2 + 1, 0, -1)
 		);
 
 		for (let i = 0; i != FLOOR_LENGTH; i++) {
@@ -159,7 +166,7 @@ export class BruinRunScene extends Base_Scene {
 				this.materials.bricks
 			);
 			model_transform.post_multiply(
-				Mat4.translation(NUM_COLUMNS * 4 - 1, 0, 0)
+				Mat4.translation(NUM_COLUMNS * 4 - 2, 0, 0)
 			);
 			this.shapes.cube.draw(
 				context,
@@ -168,7 +175,7 @@ export class BruinRunScene extends Base_Scene {
 				this.materials.bricks
 			);
 			model_transform.post_multiply(
-				Mat4.translation(-1 * NUM_COLUMNS * 4 + 1, 0, -2)
+				Mat4.translation(-1 * NUM_COLUMNS * 4 + 2, 0, -2)
 			);
 		}
 
@@ -215,7 +222,9 @@ export class BruinRunScene extends Base_Scene {
 			: this.shapes.cube.draw(
 					context,
 					program_state,
-					model_transform.times(Mat4.scale(3, 1, 1)),
+					model_transform
+						.times(Mat4.translation(column, 0, 0))
+						.times(Mat4.scale(3, 1, 1)),
 					this.materials.bricks
 			  );
 
@@ -236,103 +245,117 @@ export class BruinRunScene extends Base_Scene {
 		// );
 
 		//head 0.5 x 0.5
-		let head = model_transform;
-		head = head.times(Mat4.translation(0, 0.75, 0));
-		head = head.times(Mat4.scale(0.25, 0.25, 0.25));
-		this.shapes.cube.draw(
-			context,
-			program_state,
-			head,
-			// this.materials.villager
-			this.materials.plastic.override({
-				color: hex_color(this.colors['head']),
-			})
-		);
-		//torso
-		let torso = model_transform;
-		torso = torso.times(Mat4.translation(0, 0.125, 0));
-		torso = torso.times(Mat4.scale(0.375, 0.375, 0.175));
-		this.shapes.cube.draw(
-			context,
-			program_state,
-			torso,
-			// this.materials.villager
-			this.materials.plastic.override({
-				color: hex_color(this.colors['torso']),
-			})
-		);
-		//legs
-		let leg1 = model_transform;
-		leg1 = leg1.times(Mat4.translation(0.25, -0.625, 0));
-		leg1 = leg1.times(Mat4.scale(0.125, 0.375, 0.175));
-		if (!this.game.isGamePaused()) {
-			leg1 = leg1.times(Mat4.translation(0.125, 0.375, 0));
-			leg1 = leg1.times(
-				Mat4.rotation((Math.PI / 8) * Math.sin(5 * this.t), 1, 0, 0)
+		if (!this.game.isDucking()) {
+			let head = model_transform;
+			head = head.times(Mat4.translation(0, 0.75, 0));
+			head = head.times(Mat4.scale(0.25, 0.25, 0.25));
+			this.shapes.cube.draw(
+				context,
+				program_state,
+				head,
+				// this.materials.villager
+				this.materials.plastic.override({
+					color: hex_color(this.colors['head']),
+				})
 			);
-			leg1 = leg1.times(Mat4.translation(-0.125, -0.375, 0));
+			//torso
+			let torso = model_transform;
+			torso = torso.times(Mat4.translation(0, 0.125, 0));
+			torso = torso.times(Mat4.scale(0.375, 0.375, 0.175));
+			this.shapes.cube.draw(
+				context,
+				program_state,
+				torso,
+				// this.materials.villager
+				this.materials.plastic.override({
+					color: hex_color(this.colors['torso']),
+				})
+			);
+			//legs
+			let leg1 = model_transform;
+			leg1 = leg1.times(Mat4.translation(0.25, -0.625, 0));
+			leg1 = leg1.times(Mat4.scale(0.125, 0.375, 0.175));
+			if (!this.game.isGamePaused()) {
+				leg1 = leg1.times(Mat4.translation(0.125, 0.375, 0));
+				leg1 = leg1.times(
+					Mat4.rotation((Math.PI / 8) * Math.sin(5 * this.t), 1, 0, 0)
+				);
+				leg1 = leg1.times(Mat4.translation(-0.125, -0.375, 0));
+			}
+
+			this.shapes.cube.draw(
+				context,
+				program_state,
+				leg1,
+				// this.materials.villager
+				this.materials.plastic.override({
+					color: hex_color(this.colors['jeans']),
+				})
+			);
+
+			let leg2 = model_transform;
+			leg2 = leg2.times(Mat4.translation(-0.25, -0.625, 0));
+			leg2 = leg2.times(Mat4.scale(-0.125, 0.375, 0.175));
+			if (!this.game.isGamePaused()) {
+				leg2 = leg2.times(Mat4.translation(0.125, 0.375, 0));
+				leg2 = leg2.times(
+					Mat4.rotation(
+						-1 * (Math.PI / 8) * Math.sin(5 * this.t),
+						1,
+						0,
+						0
+					)
+				);
+				leg2 = leg2.times(Mat4.translation(0.125, -0.375, 0));
+			}
+
+			this.shapes.cube.draw(
+				context,
+				program_state,
+				leg2,
+				// this.materials.villager
+				this.materials.plastic.override({
+					color: hex_color(this.colors['jeans']),
+				})
+			);
+
+			//legs
+			let arm2 = leg1.times(Mat4.translation(-6, 2, 0));
+
+			this.shapes.cube.draw(
+				context,
+				program_state,
+				arm2,
+				// this.materials.villager
+				this.materials.plastic.override({
+					color: hex_color(this.colors['head']),
+				})
+			);
+
+			let arm1 = leg2.times(Mat4.translation(-6, 2, 0));
+
+			this.shapes.cube.draw(
+				context,
+				program_state,
+				arm1,
+				// this.materials.villager
+				this.materials.plastic.override({
+					color: hex_color(this.colors['head']),
+				})
+			);
+		} else {
+			this.shapes.sphere.draw(
+				context,
+				program_state,
+				model_transform
+					.times(Mat4.translation(0, -0.5, 0))
+					.times(Mat4.scale(0.5, 0.5, 0.5)),
+				this.materials.plastic.override({
+					color: hex_color(this.colors['torso']),
+				})
+			);
 		}
 
-		this.shapes.cube.draw(
-			context,
-			program_state,
-			leg1,
-			// this.materials.villager
-			this.materials.plastic.override({
-				color: hex_color(this.colors['jeans']),
-			})
-		);
-
-		let leg2 = model_transform;
-		leg2 = leg2.times(Mat4.translation(-0.25, -0.625, 0));
-		leg2 = leg2.times(Mat4.scale(-0.125, 0.375, 0.175));
-		if (!this.game.isGamePaused()) {
-			leg2 = leg2.times(Mat4.translation(0.125, 0.375, 0));
-			leg2 = leg2.times(
-				Mat4.rotation(
-					-1 * (Math.PI / 8) * Math.sin(5 * this.t),
-					1,
-					0,
-					0
-				)
-			);
-			leg2 = leg2.times(Mat4.translation(0.125, -0.375, 0));
-		}
-
-		this.shapes.cube.draw(
-			context,
-			program_state,
-			leg2,
-			// this.materials.villager
-			this.materials.plastic.override({
-				color: hex_color(this.colors['jeans']),
-			})
-		);
-
-		//legs
-		let arm2 = leg1.times(Mat4.translation(-6, 2, 0));
-
-		this.shapes.cube.draw(
-			context,
-			program_state,
-			arm2,
-			// this.materials.villager
-			this.materials.plastic.override({
-				color: hex_color(this.colors['head']),
-			})
-		);
-
-		let arm1 = leg2.times(Mat4.translation(-6, 2, 0));
-
-		this.shapes.cube.draw(
-			context,
-			program_state,
-			arm1,
-			// this.materials.villager
-			this.materials.plastic.override({
-				color: hex_color(this.colors['head']),
-			})
-		);
 		return model_transform;
 	}
 
@@ -389,5 +412,69 @@ export class BruinRunScene extends Base_Scene {
 		program_state.lights = [
 			new Light(player_light_position, color(1, 1, 1, 1), 1000),
 		];
+	}
+}
+
+class Text_Line extends Shape {
+	// **Text_Line** embeds text in the 3D world, using a crude texture
+	// method.  This Shape is made of a horizontal arrangement of quads.
+	// Each is textured over with images of ASCII characters, spelling
+	// out a string.  Usage:  Instantiate the Shape with the desired
+	// character line width.  Then assign it a single-line string by calling
+	// set_string("your string") on it. Draw the shape on a material
+	// with full ambient weight, and text.png assigned as its texture
+	// file.  For multi-line strings, repeat this process and draw with
+	// a different matrix.
+	constructor(max_size) {
+		super('position', 'normal', 'texture_coord');
+		this.max_size = max_size;
+		var object_transform = Mat4.identity();
+		for (var i = 0; i < max_size; i++) {
+			// Each quad is a separate Square instance:
+			defs.Square.insert_transformed_copy_into(
+				this,
+				[],
+				object_transform
+			);
+			object_transform.post_multiply(Mat4.translation(1.5, 0, 0));
+		}
+	}
+
+	set_string(line, context) {
+		// set_string():  Call this to overwrite the texture coordinates buffer with new
+		// values per quad, which enclose each of the string's characters.
+		this.arrays.texture_coord = [];
+		for (var i = 0; i < this.max_size; i++) {
+			var row = Math.floor(
+					(i < line.length ? line.charCodeAt(i) : ' '.charCodeAt()) /
+						16
+				),
+				col = Math.floor(
+					(i < line.length ? line.charCodeAt(i) : ' '.charCodeAt()) %
+						16
+				);
+
+			var skip = 3,
+				size = 32,
+				sizefloor = size - skip;
+			var dim = size * 16,
+				left = (col * size + skip) / dim,
+				top = (row * size + skip) / dim,
+				right = (col * size + sizefloor) / dim,
+				bottom = (row * size + sizefloor + 5) / dim;
+
+			this.arrays.texture_coord.push(
+				...Vector.cast(
+					[left, 1 - bottom],
+					[right, 1 - bottom],
+					[left, 1 - top],
+					[right, 1 - top]
+				)
+			);
+		}
+		if (!this.existing) {
+			this.copy_onto_graphics_card(context);
+			this.existing = true;
+		} else this.copy_onto_graphics_card(context, ['texture_coord'], false);
 	}
 }

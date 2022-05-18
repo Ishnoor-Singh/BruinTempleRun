@@ -13,6 +13,7 @@ const INITIAL_GAME_STATE = {
 	playerZDistance: 0,
 	playerColumn: MIDDLE,
 	timeElapsed: 0,
+	duck: false,
 };
 
 const objects = [
@@ -63,7 +64,6 @@ export class BruinTempleRun {
 		this.setStateToInitial();
 		this.path = new StraightLinePath(objects);
 		this.paused = true;
-		// this.paused = false;
 		this.speed = SPEED;
 	}
 
@@ -128,6 +128,14 @@ export class BruinTempleRun {
 
 	isGamePaused() {
 		return this.paused;
+	}
+
+	toggleDuck() {
+		this.state.duck = !this.state.duck;
+	}
+
+	isDucking() {
+		return this.state.duck;
 	}
 }
 
