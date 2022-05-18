@@ -90,6 +90,7 @@ class Base_Scene extends Scene {
 }
 const PLAYER = 'player';
 const OBSTACLE = 'obstacle';
+const OVERHEAD = 'overhead';
 const COIN = 'coin';
 
 const LEFT = -1;
@@ -138,7 +139,7 @@ export class BruinRunScene extends Base_Scene {
 			this.game.toggleDuck();
 			setTimeout(() => {
 				this.game.toggleDuck();
-			}, 1000);
+			}, 2000);
 		});
 	}
 
@@ -222,9 +223,13 @@ export class BruinRunScene extends Base_Scene {
 			: this.shapes.cube.draw(
 					context,
 					program_state,
-					model_transform
-						.times(Mat4.translation(column, 0, 0))
-						.times(Mat4.scale(3, 1, 1)),
+					type === OVERHEAD
+						? model_transform
+								.times(Mat4.translation(column, 1.4, 0))
+								.times(Mat4.scale(3, 0.3, 1))
+						: model_transform
+								.times(Mat4.translation(column, 0, 0))
+								.times(Mat4.scale(3, 1, 1)),
 					this.materials.bricks
 			  );
 

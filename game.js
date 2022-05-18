@@ -1,5 +1,6 @@
 const PLAYER = 'player';
 const OBSTACLE = 'obstacle';
+const OVERHEAD = 'overhead';
 const COIN = 'coin';
 
 const LEFT = -1;
@@ -53,7 +54,7 @@ const objects = [
 		column: LEFT,
 	},
 	{
-		type: OBSTACLE,
+		type: OVERHEAD,
 		z: -42,
 		column: RIGHT,
 	},
