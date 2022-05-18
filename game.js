@@ -62,7 +62,8 @@ export class BruinTempleRun {
 	constructor() {
 		this.setStateToInitial();
 		this.path = new StraightLinePath(objects);
-		this.paused = false;
+		this.paused = true;
+		// this.paused = false;
 		this.speed = SPEED;
 	}
 

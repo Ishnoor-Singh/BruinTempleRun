@@ -48,6 +48,14 @@ class Base_Scene extends Scene {
 				ambient: 0.8,
 				texture: new Texture('assets/bricks.png'),
 			}),
+			villager: new Material(new Textured_Phong(1), {
+				ambient: 0.8,
+				texture: new Texture('assets/farmer.png', 'NEAREST'),
+			}),
+			coin: new Material(new Textured_Phong(1), {
+				ambient: 0.8,
+				texture: new Texture('assets/coin.png'),
+			}),
 		};
 		// The white material and basic shader are used for drawing the outline.
 		this.white = new Material(new defs.Basic_Shader());
@@ -104,14 +112,16 @@ export class BruinRunScene extends Base_Scene {
 		this.colors = {
 			player: '#1976d2',
 			coin: '#fed93d',
-			obstacle: '#ea4334',
+			torso: '#ea4334',
+			head: '#b4886c',
+			jeans: '#0359ac',
 		};
 		this.game = new BruinTempleRun();
 		this.t = 0;
 	}
 
 	make_control_panel() {
-		this.key_triggered_button('Pause', ['k'], () => {
+		this.key_triggered_button('Pause', ['p'], () => {
 			this.game.pauseGame();
 		});
 		this.key_triggered_button('Right', ['l'], () => {
@@ -172,7 +182,7 @@ export class BruinRunScene extends Base_Scene {
 		model_transform = model_transform.times(
 			Mat4.scale(2 * NUM_COLUMNS, 0.1, 1)
 		);
-		model_transform = model_transform.times(Mat4.translation(0, -10, -1));
+		model_transform = model_transform.times(Mat4.translation(0, -11, -1));
 
 		for (let i = 0; i != FLOOR_LENGTH; i++) {
 			this.shapes.cube.draw(
@@ -205,7 +215,7 @@ export class BruinRunScene extends Base_Scene {
 			: this.shapes.cube.draw(
 					context,
 					program_state,
-					model_transform,
+					model_transform.times(Mat4.scale(3, 1, 1)),
 					this.materials.bricks
 			  );
 
@@ -217,13 +227,112 @@ export class BruinRunScene extends Base_Scene {
 		model_transform = model_transform.times(
 			Mat4.translation(column * COLUMN_WIDTH, 0, zDistsance)
 		);
+		// this.shapes.cube.draw(
+		// 	context,
+		// 	program_state,
+		// 	model_transform,
+		// 	// this.materials.villager
+		// 	this.materials.plastic.override({ color: color })
+		// );
+
+		//head 0.5 x 0.5
+		let head = model_transform;
+		head = head.times(Mat4.translation(0, 0.75, 0));
+		head = head.times(Mat4.scale(0.25, 0.25, 0.25));
 		this.shapes.cube.draw(
 			context,
 			program_state,
-			model_transform,
-			this.materials.plastic.override({ color: color })
+			head,
+			// this.materials.villager
+			this.materials.plastic.override({
+				color: hex_color(this.colors['head']),
+			})
+		);
+		//torso
+		let torso = model_transform;
+		torso = torso.times(Mat4.translation(0, 0.125, 0));
+		torso = torso.times(Mat4.scale(0.375, 0.375, 0.175));
+		this.shapes.cube.draw(
+			context,
+			program_state,
+			torso,
+			// this.materials.villager
+			this.materials.plastic.override({
+				color: hex_color(this.colors['torso']),
+			})
+		);
+		//legs
+		let leg1 = model_transform;
+		leg1 = leg1.times(Mat4.translation(0.25, -0.625, 0));
+		leg1 = leg1.times(Mat4.scale(0.125, 0.375, 0.175));
+		if (!this.game.isGamePaused()) {
+			leg1 = leg1.times(Mat4.translation(0.125, 0.375, 0));
+			leg1 = leg1.times(
+				Mat4.rotation((Math.PI / 8) * Math.sin(5 * this.t), 1, 0, 0)
+			);
+			leg1 = leg1.times(Mat4.translation(-0.125, -0.375, 0));
+		}
+
+		this.shapes.cube.draw(
+			context,
+			program_state,
+			leg1,
+			// this.materials.villager
+			this.materials.plastic.override({
+				color: hex_color(this.colors['jeans']),
+			})
 		);
 
+		let leg2 = model_transform;
+		leg2 = leg2.times(Mat4.translation(-0.25, -0.625, 0));
+		leg2 = leg2.times(Mat4.scale(-0.125, 0.375, 0.175));
+		if (!this.game.isGamePaused()) {
+			leg2 = leg2.times(Mat4.translation(0.125, 0.375, 0));
+			leg2 = leg2.times(
+				Mat4.rotation(
+					-1 * (Math.PI / 8) * Math.sin(5 * this.t),
+					1,
+					0,
+					0
+				)
+			);
+			leg2 = leg2.times(Mat4.translation(0.125, -0.375, 0));
+		}
+
+		this.shapes.cube.draw(
+			context,
+			program_state,
+			leg2,
+			// this.materials.villager
+			this.materials.plastic.override({
+				color: hex_color(this.colors['jeans']),
+			})
+		);
+
+		//legs
+		let arm2 = leg1.times(Mat4.translation(-6, 2, 0));
+
+		this.shapes.cube.draw(
+			context,
+			program_state,
+			arm2,
+			// this.materials.villager
+			this.materials.plastic.override({
+				color: hex_color(this.colors['head']),
+			})
+		);
+
+		let arm1 = leg2.times(Mat4.translation(-6, 2, 0));
+
+		this.shapes.cube.draw(
+			context,
+			program_state,
+			arm1,
+			// this.materials.villager
+			this.materials.plastic.override({
+				color: hex_color(this.colors['head']),
+			})
+		);
 		return model_transform;
 	}
 
