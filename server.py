@@ -1,7 +1,6 @@
 import sys
 import os
-PORT = 8000
-#PORT = int(os.environ.get('PORT'))
+PORT = int(os.environ.get('PORT'))
 
 
 
