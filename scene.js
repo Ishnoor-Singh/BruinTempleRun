@@ -120,6 +120,8 @@ export class BruinRunScene extends Base_Scene {
 		};
 		this.game = new BruinTempleRun();
 		this.t = 0;
+		this.centers = [];
+		this.bounce_back = false;
 	}
 
 	make_control_panel() {
@@ -202,6 +204,25 @@ export class BruinRunScene extends Base_Scene {
 			model_transform.post_multiply(Mat4.translation(0, 0, -2));
 		}
 
+		return model_transform;
+	}
+
+	setUpObstacleCenters(context, program_state, column, zDistance, type) {
+		let model_transform = Mat4.identity();
+		model_transform = model_transform.times(
+			Mat4.translation(column * COLUMN_WIDTH, 0, zDistance)
+		);
+		
+		// Center position, x, y  
+		// x is LEFT, MIDDLE, RIGHT
+		// y is 0 for ground obstacle, 1.4 for overhead obstacle 
+		this.centers.push([...model_transform.transposed()[3], 
+						   // column,
+						   column * COLUMN_WIDTH,
+						   type === OVERHEAD
+								? 1.4
+								: 0])
+		console.log(this.centers[0])
 		return model_transform;
 	}
 
@@ -371,6 +392,30 @@ export class BruinRunScene extends Base_Scene {
 		if (!this.game.isGamePaused()) {
 			this.game.addTime(this.t - this.prevT);
 		}
+
+		// set up objects centers for collision detection
+		this.game.getObjects().forEach((object) => {
+			this.setUpObstacleCenters(
+				context,
+				program_state,
+				object.column,
+				object.z,
+				object.type
+			);
+		});
+
+		console.log(this.game.getObjects().length);
+	    // this.distances = this.centers.map((pos) => {
+	    //   const camera_position = this.get_eye_location(program_state);
+	    //   return [
+	    //     Math.abs(camera_position[1] - pos[1]),
+	    //     Math.abs(camera_position[0] - pos[0]),
+	    //     pos[4],
+	    //     pos[5]
+	    //   ];
+	    // });
+	
+	    // this.detect_Collision(this.distances, 1);
 
 		this.drawPlayer(
 			context,
