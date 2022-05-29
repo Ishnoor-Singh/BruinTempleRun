@@ -3,6 +3,8 @@ import { defs, tiny } from './examples/common.js';
 import { Transforms_Sandbox } from './examples/transforms-sandbox.js';
 import { BruinRunScene } from './scene.js';
 
+import { Collision_Demo, Inertia_Demo } from './examples/collisions-demo.js'
+
 import { Surfaces_Demo } from './examples/surfaces-demo.js';
 // Pull these names into this module's scope for convenience:
 const {
