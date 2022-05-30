@@ -100,6 +100,16 @@ const RIGHT = 1;
 const COLUMN_WIDTH = 6;
 const SPEED = 2;
 
+const STRAIGHT_LINE_PATH = 'straightLinePath';
+const TURN = 'turn';
+
+const POS_Z = '+z';
+const NEG_Z = '-z';
+const POS_X = '+x';
+const NEG_X = '-x';
+
+const NUM_COLUMNS = 6;
+
 export class BruinRunScene extends Base_Scene {
 	/**
 	 * This Scene object can be added to any display canvas.
@@ -107,7 +117,6 @@ export class BruinRunScene extends Base_Scene {
 	 * This gives you a very small code sandbox for editing a simple scene, and for
 	 * experimenting with matrix transformations.
 	 */
-	//sway = true;
 
 	constructor() {
 		super();
@@ -143,23 +152,49 @@ export class BruinRunScene extends Base_Scene {
 		});
 	}
 
-	getVectorLocation(column, zDistsance) {
+	// turnTo(direction, zDistsance) {
+	// 	let transfromation = Mat4.identity();
+	// 	if (direction === POS_Z) {
+	// 		transfromation = transfromation.times(
+	// 			Mat4.translation(0, 0, -2 * zDistsance)
+	// 		);
+	// 		transfromation = transfromation.times(Mat4.scale(1, 1, -1));
+	// 	} else if (direction === POS_X) {
+	// 		transfromation = transfromation.times(
+	// 			Mat4.rotation(Math.PI / 2, 0, 1, 0)
+	// 		);
+	// 	} else if (direction === NEG_X) {
+	// 		transfromation = transfromation.times(
+	// 			Mat4.rotation((3 * Math.PI) / 2, 0, 1, 0)
+	// 		);
+	// 	}
+	// 	return transfromation;
+	// }
+
+	getVectorLocation(column, zDistsance, direction = NEG_Z) {
 		let model_transform = Mat4.identity();
+		const turnAngle = {};
+		turnAngle[NEG_Z] = 0;
+		turnAngle[POS_Z] = Math.PI;
+		turnAngle[POS_X] = Math.PI / 2;
+		turnAngle[NEG_X] = (3 * Math.PI) / 2;
+		// console.log(turnAngle[direction]);
+		model_transform = model_transform.times(
+			Mat4.rotation(turnAngle[direction], 0, 1, 0)
+		);
 		model_transform = model_transform.times(
 			Mat4.translation(column * COLUMN_WIDTH, 0, zDistsance)
 		);
 		return model_transform;
 	}
 
-	drawWalls(context, program_state) {
-		const FLOOR_LENGTH = 100;
-		const NUM_COLUMNS = 6;
-		let model_transform = Mat4.identity();
+	drawLineWalls(context, program_state, length, initialTransform) {
+		let model_transform = initialTransform;
 		model_transform = model_transform.times(
 			Mat4.translation(-NUM_COLUMNS * 2 + 1, 0, -1)
 		);
 
-		for (let i = 0; i != FLOOR_LENGTH; i++) {
+		for (let i = 0; i != length; i++) {
 			this.shapes.cube.draw(
 				context,
 				program_state,
@@ -183,20 +218,20 @@ export class BruinRunScene extends Base_Scene {
 		return model_transform;
 	}
 
-	drawFloor(context, program_state) {
-		const FLOOR_LENGTH = 100;
-		const NUM_COLUMNS = 6;
-		let model_transform = Mat4.identity();
+	drawLineFloor(context, program_state, length, initialTransform) {
+		let model_transform = initialTransform;
+
 		model_transform = model_transform.times(
 			Mat4.scale(2 * NUM_COLUMNS, 0.1, 1)
 		);
 		model_transform = model_transform.times(Mat4.translation(0, -11, -1));
 
-		for (let i = 0; i != FLOOR_LENGTH; i++) {
+		for (let i = 0; i != length; i++) {
 			this.shapes.cube.draw(
 				context,
 				program_state,
 				model_transform,
+				// model_transform.times(this.turnTo(direction, 2, 2, -2 * i)),
 				this.materials.ground
 			);
 			model_transform.post_multiply(Mat4.translation(0, 0, -2));
@@ -205,9 +240,17 @@ export class BruinRunScene extends Base_Scene {
 		return model_transform;
 	}
 
-	drawObject(context, program_state, column, zDistsance, type) {
+	drawObject(
+		context,
+		program_state,
+		column,
+		zDistsance,
+		type,
+		initialTransform
+	) {
 		const color = hex_color(this.colors[type]);
-		let model_transform = Mat4.identity();
+		let model_transform = initialTransform;
+
 		model_transform = model_transform.times(
 			Mat4.translation(column * COLUMN_WIDTH, 0, zDistsance)
 		);
@@ -235,20 +278,29 @@ export class BruinRunScene extends Base_Scene {
 
 		return model_transform;
 	}
-	drawPlayer(context, program_state, column, zDistsance, type) {
+	drawPlayer(context, program_state, column, direction, type, playerCoords) {
 		const color = hex_color(this.colors[type]);
 		let model_transform = Mat4.identity();
-		model_transform = model_transform.times(
-			Mat4.translation(column * COLUMN_WIDTH, 0, zDistsance)
-		);
-		// this.shapes.cube.draw(
-		// 	context,
-		// 	program_state,
-		// 	model_transform,
-		// 	// this.materials.villager
-		// 	this.materials.plastic.override({ color: color })
-		// );
 
+		let [x, y, z] = playerCoords;
+
+		if (this.game.getDirection() == NEG_X) {
+			z += column * COLUMN_WIDTH;
+		} else if (this.game.getDirection() == POS_X) {
+			z -= column * COLUMN_WIDTH;
+		} else if (this.game.getDirection() == NEG_Z) {
+			x += column * COLUMN_WIDTH;
+		}
+
+		model_transform = model_transform.times(Mat4.translation(...[x, y, z]));
+		const turnAngle = {};
+		turnAngle[NEG_Z] = 0;
+		turnAngle[POS_Z] = Math.PI;
+		turnAngle[POS_X] = Math.PI / 2;
+		turnAngle[NEG_X] = (3 * Math.PI) / 2;
+		model_transform = model_transform.times(
+			Mat4.rotation(turnAngle[direction], 0, 1, 0)
+		);
 		//head 0.5 x 0.5
 		if (!this.game.isDucking()) {
 			let head = model_transform;
@@ -258,7 +310,6 @@ export class BruinRunScene extends Base_Scene {
 				context,
 				program_state,
 				head,
-				// this.materials.villager
 				this.materials.plastic.override({
 					color: hex_color(this.colors['head']),
 				})
@@ -271,7 +322,6 @@ export class BruinRunScene extends Base_Scene {
 				context,
 				program_state,
 				torso,
-				// this.materials.villager
 				this.materials.plastic.override({
 					color: hex_color(this.colors['torso']),
 				})
@@ -292,7 +342,6 @@ export class BruinRunScene extends Base_Scene {
 				context,
 				program_state,
 				leg1,
-				// this.materials.villager
 				this.materials.plastic.override({
 					color: hex_color(this.colors['jeans']),
 				})
@@ -318,7 +367,6 @@ export class BruinRunScene extends Base_Scene {
 				context,
 				program_state,
 				leg2,
-				// this.materials.villager
 				this.materials.plastic.override({
 					color: hex_color(this.colors['jeans']),
 				})
@@ -331,7 +379,6 @@ export class BruinRunScene extends Base_Scene {
 				context,
 				program_state,
 				arm2,
-				// this.materials.villager
 				this.materials.plastic.override({
 					color: hex_color(this.colors['head']),
 				})
@@ -343,7 +390,6 @@ export class BruinRunScene extends Base_Scene {
 				context,
 				program_state,
 				arm1,
-				// this.materials.villager
 				this.materials.plastic.override({
 					color: hex_color(this.colors['head']),
 				})
@@ -364,6 +410,36 @@ export class BruinRunScene extends Base_Scene {
 		return model_transform;
 	}
 
+	drawPaths(context, program_state) {
+		const paths = this.game.getPaths();
+		paths.forEach((e) => {
+			if (e.type === STRAIGHT_LINE_PATH) {
+				this.drawLineWalls(
+					context,
+					program_state,
+					e.length,
+					e.getInitialTransform()
+				);
+				this.drawLineFloor(
+					context,
+					program_state,
+					e.length,
+					e.getInitialTransform()
+				);
+				e.objects.forEach((object) => {
+					this.drawObject(
+						context,
+						program_state,
+						object.column,
+						object.z,
+						object.type,
+						e.getInitialTransform()
+					);
+				});
+			}
+		});
+	}
+
 	display(context, program_state) {
 		super.display(context, program_state);
 		this.prevT = this.t;
@@ -376,30 +452,24 @@ export class BruinRunScene extends Base_Scene {
 			context,
 			program_state,
 			this.game.getPlayerColumn(),
-			this.game.getPlayerZDistance(),
-			PLAYER
+			this.game.getDirection(),
+			PLAYER,
+			// this.game.getDirection(),
+			this.game.getPlayerCoords()
 		);
 
 		// draw objects
-		this.game.getObjects().forEach((object) => {
-			this.drawObject(
-				context,
-				program_state,
-				object.column,
-				object.z,
-				object.type
-			);
-		});
 
 		// draw floor
-		this.drawFloor(context, program_state);
-		this.drawWalls(context, program_state);
-
+		// this.drawFloor(context, program_state);
+		// this.drawWalls(context, program_state);
+		this.drawPaths(context, program_state);
 		// set camera
 		let desired = Mat4.inverse(
 			this.getVectorLocation(
 				this.game.getPlayerColumn(),
-				this.game.getPlayerZDistance()
+				this.game.getPlayerZDistance(),
+				this.game.getDirection()
 			).times(Mat4.translation(0, 7, 20))
 		);
 		desired = desired.map((x, i) =>
@@ -417,69 +487,5 @@ export class BruinRunScene extends Base_Scene {
 		program_state.lights = [
 			new Light(player_light_position, color(1, 1, 1, 1), 1000),
 		];
-	}
-}
-
-class Text_Line extends Shape {
-	// **Text_Line** embeds text in the 3D world, using a crude texture
-	// method.  This Shape is made of a horizontal arrangement of quads.
-	// Each is textured over with images of ASCII characters, spelling
-	// out a string.  Usage:  Instantiate the Shape with the desired
-	// character line width.  Then assign it a single-line string by calling
-	// set_string("your string") on it. Draw the shape on a material
-	// with full ambient weight, and text.png assigned as its texture
-	// file.  For multi-line strings, repeat this process and draw with
-	// a different matrix.
-	constructor(max_size) {
-		super('position', 'normal', 'texture_coord');
-		this.max_size = max_size;
-		var object_transform = Mat4.identity();
-		for (var i = 0; i < max_size; i++) {
-			// Each quad is a separate Square instance:
-			defs.Square.insert_transformed_copy_into(
-				this,
-				[],
-				object_transform
-			);
-			object_transform.post_multiply(Mat4.translation(1.5, 0, 0));
-		}
-	}
-
-	set_string(line, context) {
-		// set_string():  Call this to overwrite the texture coordinates buffer with new
-		// values per quad, which enclose each of the string's characters.
-		this.arrays.texture_coord = [];
-		for (var i = 0; i < this.max_size; i++) {
-			var row = Math.floor(
-					(i < line.length ? line.charCodeAt(i) : ' '.charCodeAt()) /
-						16
-				),
-				col = Math.floor(
-					(i < line.length ? line.charCodeAt(i) : ' '.charCodeAt()) %
-						16
-				);
-
-			var skip = 3,
-				size = 32,
-				sizefloor = size - skip;
-			var dim = size * 16,
-				left = (col * size + skip) / dim,
-				top = (row * size + skip) / dim,
-				right = (col * size + sizefloor) / dim,
-				bottom = (row * size + sizefloor + 5) / dim;
-
-			this.arrays.texture_coord.push(
-				...Vector.cast(
-					[left, 1 - bottom],
-					[right, 1 - bottom],
-					[left, 1 - top],
-					[right, 1 - top]
-				)
-			);
-		}
-		if (!this.existing) {
-			this.copy_onto_graphics_card(context);
-			this.existing = true;
-		} else this.copy_onto_graphics_card(context, ['texture_coord'], false);
 	}
 }
