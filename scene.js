@@ -131,7 +131,8 @@ export class BruinRunScene extends Base_Scene {
 		};
 		this.game = new BruinTempleRun();
 		this.t = 0;
-		this.centers = [];
+		this.coinCenters = [];
+		this.obstacleCenters = [];
 		this.bounce_back = false;
 	}
 
@@ -214,55 +215,6 @@ export class BruinRunScene extends Base_Scene {
 			);
 			model_transform.post_multiply(Mat4.translation(0, 0, -2));
 		}
-
-		return model_transform;
-	}
-
-	setUpObstacleCenters(context, program_state, column, zDistance, type) {
-		let model_transform = Mat4.identity();
-		model_transform = model_transform.times(
-			Mat4.translation(column * COLUMN_WIDTH, 0, zDistance)
-		);
-		
-		// x, y, Center position 
-		// x is LEFT, MIDDLE, RIGHT
-		// y is 0 for ground obstacle, 1.4 for overhead obstacle
-		// in array, object z is index 4
-		this.centers.push([column * COLUMN_WIDTH,
-						   type === OVERHEAD
-								? 1.4
-								: 0,
-						  ...model_transform.transposed()[3]])
-		return model_transform;
-	}
-
-	drawObject(context, program_state, column, zDistsance, type) {
-		const color = hex_color(this.colors[type]);
-		let model_transform = Mat4.identity();
-		model_transform = model_transform.times(
-			Mat4.translation(column * COLUMN_WIDTH, 0, zDistsance)
-		);
-		type === COIN
-			? this.shapes.cube.draw(
-					context,
-					program_state,
-					model_transform
-						.times(Mat4.scale(0.3, 0.3, 0.3))
-						.times(Mat4.translation(0, 1.7, 0)),
-					this.materials.plastic.override({ color: color })
-			  )
-			: this.shapes.cube.draw(
-					context,
-					program_state,
-					type === OVERHEAD
-						? model_transform
-								.times(Mat4.translation(column, 1.4, 0))
-								.times(Mat4.scale(3, 0.3, 1))
-						: model_transform
-								.times(Mat4.translation(column, 0, 0))
-								.times(Mat4.scale(3, 1, 1)),
-					this.materials.bricks
-			  );
 
 		return model_transform;
 	}
@@ -396,6 +348,63 @@ export class BruinRunScene extends Base_Scene {
 		return model_transform;
 	}
 
+	setUpCenters(context, program_state, column, zDistance, type) {
+		let model_transform = Mat4.identity();
+		model_transform = model_transform.times(
+			Mat4.translation(column * COLUMN_WIDTH, 0, zDistance)
+		);
+		
+		// x, y, Center position 
+		// x is LEFT, MIDDLE, RIGHT
+		// y is 0 for ground obstacle, 1.4 for overhead obstacle
+		// in array, object z is index 4
+		type === COIN 
+			? this.coinCenters.push([
+						   column * COLUMN_WIDTH,
+						   0,
+						  ...model_transform.transposed()[3]		
+			])
+			: this.obstacleCenters.push([
+						   column * COLUMN_WIDTH,
+						   type === OVERHEAD
+								? 1.4
+								: 0,
+						  ...model_transform.transposed()[3]
+			])
+		return model_transform;
+	}
+
+	drawObject(context, program_state, column, zDistance, type) {
+		const color = hex_color(this.colors[type]);
+		let model_transform = Mat4.identity();
+		model_transform = model_transform.times(
+			Mat4.translation(column * COLUMN_WIDTH, 0, zDistance)
+		);
+		type === COIN
+			? this.shapes.cube.draw(
+					context,
+					program_state,
+					model_transform
+						.times(Mat4.scale(0.3, 0.3, 0.3))
+						.times(Mat4.translation(0, 1.7, 0)),
+					this.materials.plastic.override({ color: color })
+			  )
+			: this.shapes.cube.draw(
+					context,
+					program_state,
+					type === OVERHEAD
+						? model_transform
+								.times(Mat4.translation(column, 1.4, 0))
+								.times(Mat4.scale(3, 0.3, 1))
+						: model_transform
+								.times(Mat4.translation(column, 0, 0))
+								.times(Mat4.scale(3, 1, 1)),
+					this.materials.bricks
+			  );
+
+		return model_transform;
+	}
+
 	baseScreenSetup(context, program_state) {
 	    program_state.lights = [new Light(vec4(0, 1, 1, 0), color(1, 1, 1, 1), 1000000)];
 	    program_state.set_camera(Mat4.look_at(...Vector.cast([0, 0, 4], [0, 0, 0], [0, 1, 0])));
@@ -409,14 +418,14 @@ export class BruinRunScene extends Base_Scene {
 	    for (let line of multi_line_string.slice(0, 30)) {
 	      this.shapes.text.set_string(line, context.context);
 	      this.shapes.text.draw(context, program_state, cube_side.times(Mat4.scale(.1, .1, .1)), this.materials.text_image);
-	      cube_side.post_multiply(Mat4.translation(0, -0.09, 0));
+	      cube_side.post_multiply(Mat4.translation(0, -0.06, 0));
 	    }
 	}
 
 	gameLostScreen(context, program_state) {
 	    this.baseScreenSetup(context, program_state);
 	
-	    let strings = ['\t\t\t\t\t\t\t\tGame Over \n\n\n[R]estart'];
+	    let strings = ['\t\t\t\t\t\t\t\tGame Over \n\n\n\t\t\t\t\t\t\t\t[R]estart'];
 	    const multi_line_string = strings[0].split("\n");
 	    let cube_side = Mat4.rotation(0, 1, 0, 0)
 	      .times(Mat4.rotation(0, 0, 1, 0))
@@ -436,7 +445,7 @@ export class BruinRunScene extends Base_Scene {
 			if (!this.game.gameEnded){
 				// set up objects centers for collision detection
 				this.game.getObjects().forEach((object) => {
-					this.setUpObstacleCenters(
+					this.setUpCenters(
 						context,
 						program_state,
 						object.column,
@@ -445,8 +454,8 @@ export class BruinRunScene extends Base_Scene {
 					);
 				});
 		
-				this.distances = this.centers.map((pos) => {
-					const player_x = this.game.getPlayerColumn();
+				this.distances = this.obstacleCenters.map((pos) => {
+					const player_x = this.game.getPlayerColumn() * COLUMN_WIDTH;
 					// if ducking, should hit ground obstacle (y = 0); else, should hit both obstacles (y = 0, 1.4)
 					const player_y = this.game.isDucking() ? 0.1 : 1.5; //
 					const player_z = this.game.getPlayerZDistance();
