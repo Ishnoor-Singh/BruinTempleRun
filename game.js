@@ -269,6 +269,8 @@ export class BruinTempleRun {
     this.path = new StraightLinePath(objects);
     this.paused = true;
     this.speed = SPEED;
+    this.gameStarted = true;
+    this.gameEnded = false;
   }
 
   setStateToInitial() {
@@ -340,6 +342,9 @@ export class BruinTempleRun {
 
   isDucking() {
     return this.state.duck;
+  }
+  endGame() {
+    this.gameEnded = true;
   }
 }
 
