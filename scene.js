@@ -455,7 +455,7 @@ export class BruinRunScene extends Base_Scene {
 				this.distances = this.obstacleCenters.map((pos) => {
 					const player_x = this.game.getPlayerColumn() * COLUMN_WIDTH;
 					// if ducking, should hit ground obstacle (y = 0); else, should hit both obstacles (y = 0, 1.4)
-					const player_y = this.game.isDucking() ? OBSTACLE_Y + 0.1 : OVERHEAD_Y + 0.1; //
+					const player_y = this.game.isDucking() ? OBSTACLE_Y + 0.1 : OVERHEAD_Y + 0.1; 
 					const player_z = this.game.getPlayerZDistance();
 		
 					return [
