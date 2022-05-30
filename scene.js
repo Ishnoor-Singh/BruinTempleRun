@@ -1,8 +1,6 @@
 import { defs, tiny } from './examples/common.js';
 import { BruinTempleRun } from './game.js';
 
-// import { Text_Line } from './examples/text-demo.js';
-
 const {
 	Vector,
 	Vector3,
@@ -34,7 +32,7 @@ class Base_Scene extends Scene {
 		this.shapes = {
 			cube: new Cube(),
 			sphere: new defs.Subdivision_Sphere(4),
-		    text: new Text_Line(35)
+		    text: new Text_Line(40)
 		};
 
 		// *** Materials
