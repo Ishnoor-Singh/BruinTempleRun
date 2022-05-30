@@ -315,11 +315,8 @@ export class BruinTempleRun {
   }
 
   restartGame() {
-    if (!this.paused) {
-      this.setStateToInitial();
-    }
+    this.setStateToInitial();
     if (this.gameEnded) {
-      this.setStateToInitial();
       this.gameEnded = false;
       this.paused = true;
     }
