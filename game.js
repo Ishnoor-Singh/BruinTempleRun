@@ -348,7 +348,6 @@ export class BruinTempleRun {
   endGame() {
     this.gameEnded = true;
   }
-}
 
 class StraightLinePath {
   constructor(objects) {
