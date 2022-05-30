@@ -7,8 +7,8 @@ const LEFT = -1;
 const MIDDLE = 0;
 const RIGHT = 1;
 
-const COLUMN_WIDTH = 5;
-const SPEED = 8;
+const COLUMN_WIDTH = 6;
+const SPEED = 15;
 
 const INITIAL_GAME_STATE = {
   playerZDistance: 0,
@@ -269,6 +269,8 @@ export class BruinTempleRun {
     this.path = new StraightLinePath(objects);
     this.paused = true;
     this.speed = SPEED;
+    this.gameStarted = true;
+    this.gameEnded = false;
   }
 
   setStateToInitial() {
@@ -313,8 +315,10 @@ export class BruinTempleRun {
   }
 
   restartGame() {
-    if (!this.paused) {
-      this.setStateToInitial();
+    this.setStateToInitial();
+    if (this.gameEnded) {
+      this.gameEnded = false;
+      this.paused = true;
     }
   }
 
@@ -341,7 +345,9 @@ export class BruinTempleRun {
   isDucking() {
     return this.state.duck;
   }
-}
+  endGame() {
+    this.gameEnded = true;
+  }
 
 class StraightLinePath {
   constructor(objects) {
