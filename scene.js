@@ -107,7 +107,9 @@ const MIDDLE = 0;
 const RIGHT = 1;
 
 const COLUMN_WIDTH = 6;
-const SPEED = 2;
+
+const OBSTACLE_Y = 0;
+const OVERHEAD_Y = 1.4;
 
 export class BruinRunScene extends Base_Scene {
 	/**
@@ -364,8 +366,8 @@ export class BruinRunScene extends Base_Scene {
 			: this.obstacleCenters.push([
 						   column * COLUMN_WIDTH,
 						   type === OVERHEAD
-								? 1.4
-								: 0,
+								? OVERHEAD_Y
+								: OBSTACLE_Y,
 						  ...model_transform.transposed()[3]
 			])
 		return model_transform;
@@ -391,10 +393,10 @@ export class BruinRunScene extends Base_Scene {
 					program_state,
 					type === OVERHEAD
 						? model_transform
-								.times(Mat4.translation(column, 1.4, 0))
+								.times(Mat4.translation(column, OVERHEAD_Y, 0))
 								.times(Mat4.scale(3, 0.3, 1))
 						: model_transform
-								.times(Mat4.translation(column, 0, 0))
+								.times(Mat4.translation(column, OBSTACLE_Y, 0))
 								.times(Mat4.scale(3, 1, 1)),
 					this.materials.bricks
 			  );
@@ -453,7 +455,7 @@ export class BruinRunScene extends Base_Scene {
 				this.distances = this.obstacleCenters.map((pos) => {
 					const player_x = this.game.getPlayerColumn() * COLUMN_WIDTH;
 					// if ducking, should hit ground obstacle (y = 0); else, should hit both obstacles (y = 0, 1.4)
-					const player_y = this.game.isDucking() ? 0.1 : 1.5; //
+					const player_y = this.game.isDucking() ? OBSTACLE_Y + 0.1 : OVERHEAD_Y + 0.1; //
 					const player_z = this.game.getPlayerZDistance();
 		
 					return [
