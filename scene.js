@@ -131,7 +131,6 @@ export class BruinRunScene extends Base_Scene {
 		this.t = 0;
 		this.coinCenters = [];
 		this.obstacleCenters = [];
-		this.bounce_back = false;
 	}
 
 	make_control_panel() {
@@ -403,12 +402,13 @@ export class BruinRunScene extends Base_Scene {
 		return model_transform;
 	}
 
+	// From text-demo.js
 	baseScreenSetup(context, program_state) {
 	    program_state.lights = [new Light(vec4(0, 1, 1, 0), color(1, 1, 1, 1), 1000000)];
 	    program_state.set_camera(Mat4.look_at(...Vector.cast([0, 0, 4], [0, 0, 0], [0, 1, 0])));
 	
-	    let start_message_transform = Mat4.identity().times(Mat4.scale(2.5, 0.5, 0.5));
-	    this.shapes.cube.draw(context, program_state, start_message_transform, this.materials.start_background);
+	    let transform = Mat4.scale(2.5, 0.5, 0.5);
+	    this.shapes.cube.draw(context, program_state, transform, this.materials.start_background);
 	}
 
 	// Draws text onto cube side given strings (like in text-demo.js)
@@ -416,7 +416,7 @@ export class BruinRunScene extends Base_Scene {
 	    for (let line of multi_line_string.slice(0, 30)) {
 	      this.shapes.text.set_string(line, context.context);
 	      this.shapes.text.draw(context, program_state, cube_side.times(Mat4.scale(.1, .1, .1)), this.materials.text_image);
-	      cube_side.post_multiply(Mat4.translation(0, -0.06, 0));
+	      cube_side.post_multiply(Mat4.translation(0, -.06, 0));
 	    }
 	}
 
@@ -424,10 +424,8 @@ export class BruinRunScene extends Base_Scene {
 	    this.baseScreenSetup(context, program_state);
 	
 	    let strings = ['\t\t\t\t\t\t\t\tGame Over \n\n\n\t\t\t\t\t\t\t\t[R]estart'];
+		let cube_side = Mat4.translation(-1.8, 0, 1);
 	    const multi_line_string = strings[0].split("\n");
-	    let cube_side = Mat4.rotation(0, 1, 0, 0)
-	      .times(Mat4.rotation(0, 0, 1, 0))
-	      .times(Mat4.translation(-1.9, 0, 0.9));
 	    this.baseDrawText(context, program_state, multi_line_string, cube_side);
 	  }
 

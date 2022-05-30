@@ -318,6 +318,11 @@ export class BruinTempleRun {
     if (!this.paused) {
       this.setStateToInitial();
     }
+    if (this.gameEnded) {
+      this.setStateToInitial();
+      this.gameEnded = false;
+      this.paused = true;
+    }
   }
 
   getPlayerColumn() {
