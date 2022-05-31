@@ -33,11 +33,11 @@ const {
 export function calculatePlayerCoords(baseCoords, direction, column) {
 	let [x, y, z] = baseCoords;
 	if (direction == NEG_X) {
-		z = column * COLUMN_WIDTH;
+		z += column * COLUMN_WIDTH;
 	} else if (direction == POS_X) {
-		z = -1 * column * COLUMN_WIDTH;
+		z -= column * COLUMN_WIDTH;
 	} else if (direction == NEG_Z) {
-		x = column * COLUMN_WIDTH;
+		x += column * COLUMN_WIDTH;
 	}
 	return [x, y, z];
 }

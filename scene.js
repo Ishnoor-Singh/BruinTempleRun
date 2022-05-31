@@ -182,9 +182,10 @@ export class BruinRunScene extends Base_Scene {
 	drawPlayer(context, program_state, column, direction, type, playerCoords) {
 		let model_transform = Mat4.identity();
 
-		let [x, y, z] = calculatePlayerCoords(playerCoords, direction, column);
+		// let [x, y, z] = calculatePlayerCoords(playerCoords, direction, column);
 
-		model_transform = model_transform.times(Mat4.translation(...[x, y, z]));
+		// console.log(x)
+		model_transform = model_transform.times(Mat4.translation(...playerCoords));
 		const turnAngle = {};
 		turnAngle[NEG_Z] = 0;
 		turnAngle[POS_X] = Math.PI / 2;
@@ -310,15 +311,10 @@ export class BruinRunScene extends Base_Scene {
 		initialTransform
 	) {
 		let model_transform = initialTransform;
-		// console.log(
-		// 	typeof [...model_transform.transposed()][3][0],
-		// 	[...model_transform.transposed()][3][0]
-		// );
 
 		model_transform = model_transform.times(
 			Mat4.translation(column * COLUMN_WIDTH, 0, zDistance)
 		);
-		// console.log(...model_transform.transposed()[3]);
 
 		// x, y, Center position
 		// x is LEFT, MIDDLE, RIGHT
@@ -328,12 +324,12 @@ export class BruinRunScene extends Base_Scene {
 			? this.coinCenters.push([
 					[...model_transform.transposed()][3][0],
 					0,
-					...model_transform.transposed()[3],
+					[...model_transform.transposed()][3][2],
 			  ])
 			: this.obstacleCenters.push([
 					[...model_transform.transposed()][3][0],
 					type === OVERHEAD ? OVERHEAD_Y : OBSTACLE_Y,
-					...model_transform.transposed()[3],
+					[...model_transform.transposed()][3][2],
 			  ]);
 		// console.log(this.obstacleCenters[0]);
 		return model_transform;
@@ -473,16 +469,27 @@ export class BruinRunScene extends Base_Scene {
 						player_z,
 						pos[0],
 						pos[1],
-						pos[4],
+						pos[2],
 					];
 				});
+
+				console.log(this.distances[0])
 				// -z, -x, +x
 				const collide = this.distances.some((dist) => {
-					if (dist[0] === dist[3] && dist[1] > dist[4]) {
-						if (dist[2] < dist[5] + 1 && dist[2] > dist[5] - 1)
-							return true;
+					if (this.game.getDirection() == NEG_Z){
+						if (dist[0] === dist[3] && dist[1] > dist[4]) {
+							if (dist[2] < dist[5] + 1 && dist[2] > dist[5] - 1){
+								console.log(dist[0])
+								console.log(dist[1])
+								console.log(dist[2])
+								console.log(dist[3])
+								console.log(dist[4])
+								console.log(dist[5])
+								return true;
+							}
+						}
+						return false;
 					}
-					return false;
 				});
 
 				if (collide) this.game.endGame();

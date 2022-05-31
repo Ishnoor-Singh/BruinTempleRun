@@ -321,6 +321,18 @@ export class BruinTempleRun {
 		this.state.playerCoords = [x, y, z];
 	}
 
+	recalculateCoordsAfterSlide(slide) {
+		let [x, y, z] = this.state.playerCoords;
+		if (this.state.direction == NEG_X) {
+			z += slide * COLUMN_WIDTH;
+		} else if (this.state.direction == POS_X) {
+			z -= slide * COLUMN_WIDTH;
+		} else if (this.state.direction == NEG_Z) {
+			x += slide * COLUMN_WIDTH;
+		}
+		this.state.playerCoords = [x, y, z];
+	}
+
 	movePlayerLeft() {
 		if (!this.paused) {
 			if (this.state.playerColumn === RIGHT) {
@@ -353,8 +365,10 @@ export class BruinTempleRun {
 	    if (!this.paused) {
 	      if (this.state.playerColumn === RIGHT) {
 	        this.state.playerColumn = MIDDLE;
+			this.recalculateCoordsAfterSlide(LEFT);
 	        return true;
 	      } else if (this.state.playerColumn === MIDDLE) {
+			this.recalculateCoordsAfterSlide(LEFT);
 	        this.state.playerColumn = LEFT;
 	        return true;
 	      } else {
@@ -366,9 +380,11 @@ export class BruinTempleRun {
      slidePlayerRight() {
 	    if (!this.paused) {
 	      if (this.state.playerColumn === LEFT) {
+			this.recalculateCoordsAfterSlide(RIGHT);
 	        this.state.playerColumn = MIDDLE;
 	        return true;
 	      } else if (this.state.playerColumn === MIDDLE) {
+			this.recalculateCoordsAfterSlide(RIGHT);
 	        this.state.playerColumn = RIGHT;
 	        return true;
 	      } else {
