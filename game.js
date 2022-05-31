@@ -13,34 +13,15 @@ const RIGHT = 1;
 const COLUMN_WIDTH = 6;
 const SPEED = 15;
 
-const STRAIGHT_LINE_PATH = 'straightLinePath';
-const TURN = 'turn';
-
-const NEG_Z = '-z';
-const POS_X = '+x';
-const NEG_X = '-x';
-
-const STRAIGHT_LINE_PATH = 'straightLinePath';
-const TURN = 'turn';
-
-const NEG_Z = '-z';
-const POS_X = '+x';
-const NEG_X = '-x';
-
 const INITIAL_GAME_STATE = {
 	playerZDistance: 0,
 	playerColumn: MIDDLE,
 	timeElapsed: 0,
 	duck: false,
-<<<<<<< HEAD
-	direction: NEG_Z,
-	playerCoords: [0, 0, 0],
-=======
 	direction: NEG_X,
 	playerCoords: [-12, 0, -212],
 	// direction: NEG_Z,
 	// playerCoords: [0, 0, 0],
->>>>>>> 273420b
 };
 
 const objects = [
