@@ -1,4 +1,5 @@
 import { tiny } from './examples/common.js';
+import { NEG_X, NEG_Z, STRAIGHT_LINE_PATH, TURN, POS_X } from './constants.js';
 const { Mat4 } = tiny;
 
 const PLAYER = 'player';

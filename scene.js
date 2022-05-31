@@ -9,6 +9,8 @@ import {
 	drawCorner,
 	calculatePlayerCoords,
 } from './drawUitls.js';
+import { NEG_X, NEG_Z, STRAIGHT_LINE_PATH, TURN, POS_X } from './constants.js';
+
 const {
 	Vector,
 	Vector3,
@@ -176,7 +178,6 @@ export class BruinRunScene extends Base_Scene {
 		model_transform = model_transform.times(Mat4.translation(...[x, y, z]));
 		const turnAngle = {};
 		turnAngle[NEG_Z] = 0;
-		turnAngle[POS_Z] = Math.PI;
 		turnAngle[POS_X] = Math.PI / 2;
 		turnAngle[NEG_X] = (3 * Math.PI) / 2;
 		model_transform = model_transform.times(
