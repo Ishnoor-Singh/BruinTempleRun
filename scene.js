@@ -153,14 +153,23 @@ export class BruinRunScene extends Base_Scene {
 		this.key_triggered_button('Pause', ['p'], () => {
 			this.game.pauseGame();
 		});
-		this.key_triggered_button('Right', ['l'], () => {
+		this.key_triggered_button('Slide right', ['l'], () => {
+			this.game.slidePlayerRight();
+		});
+		this.key_triggered_button('Slide left', ['j'], () => {
+			this.game.slidePlayerLeft();
+		});
+		this.key_triggered_button('Turn right', ['Control', 'l'], () => {
 			this.game.movePlayerRight();
 		});
-		this.key_triggered_button('Left', ['j'], () => {
+		this.key_triggered_button('Turn left', ['Control', 'j'], () => {
 			this.game.movePlayerLeft();
 		});
 		this.key_triggered_button('Restart', ['r'], () => {
 			this.game.restartGame();
+		});
+		this.key_triggered_button('Start', ['s'], () => {
+			this.game.startGame();
 		});
 		this.key_triggered_button('Down', ['k'], () => {
 			this.game.toggleDuck();
@@ -301,10 +310,10 @@ export class BruinRunScene extends Base_Scene {
 		initialTransform
 	) {
 		let model_transform = initialTransform;
-		console.log(
-			typeof [...model_transform.transposed()][3][0],
-			[...model_transform.transposed()][3][0]
-		);
+		// console.log(
+		// 	typeof [...model_transform.transposed()][3][0],
+		// 	[...model_transform.transposed()][3][0]
+		// );
 
 		model_transform = model_transform.times(
 			Mat4.translation(column * COLUMN_WIDTH, 0, zDistance)
@@ -326,7 +335,7 @@ export class BruinRunScene extends Base_Scene {
 					type === OVERHEAD ? OVERHEAD_Y : OBSTACLE_Y,
 					...model_transform.transposed()[3],
 			  ]);
-		console.log(this.obstacleCenters[0]);
+		// console.log(this.obstacleCenters[0]);
 		return model_transform;
 	}
 
@@ -367,6 +376,17 @@ export class BruinRunScene extends Base_Scene {
 
 		let strings = [
 			'\t\t\t\t\t\t\t\tGame Over \n\n\n\t\t\t\t\t\t\t\t[R]estart',
+		];
+		let cube_side = Mat4.translation(-1.8, 0, 1);
+		const multi_line_string = strings[0].split('\n');
+		this.baseDrawText(context, program_state, multi_line_string, cube_side);
+	}
+
+	gameStartScreen(context, program_state) {
+		this.baseScreenSetup(context, program_state);
+
+		let strings = [
+			'\t\t\t\t\t\t\t\tBruin Temple Run\n\n\n\t\t\t\t\t\t\t\t[S]tart',
 		];
 		let cube_side = Mat4.translation(-1.8, 0, 1);
 		const multi_line_string = strings[0].split('\n');
@@ -512,6 +532,9 @@ export class BruinRunScene extends Base_Scene {
 				// game ended: check if victory or defeat
 				this.gameLostScreen(context, program_state);
 			}
+		}
+		else {
+			this.gameStartScreen(context, program_state);
 		}
 	}
 }
