@@ -23,6 +23,7 @@ const INITIAL_GAME_STATE = {
 	// playerCoords: [-12, 0, -212],
 	direction: NEG_Z,
 	playerCoords: [0, 0, 0],
+	coins: 0,
 };
 
 const objects = [
@@ -445,6 +446,22 @@ export class BruinTempleRun {
 
 	getPlayerCoords() {
 		return this.state.playerCoords;
+	}
+
+	getPlayerCoins() {
+		return this.state.coins;
+	}
+
+	setPlayerCoins(amount) {
+		this.state.coins = amount;
+	}
+
+	getPlayerSpeed() {
+		return this.speed;
+	}
+
+	setPlayerSpeed(amount) {
+		this.speed = amount;
 	}
 }
 class SubPath {
