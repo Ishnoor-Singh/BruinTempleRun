@@ -1,6 +1,14 @@
 import { defs, tiny } from './examples/common.js';
 import { BruinTempleRun } from './game.js';
-
+import { Text_Line } from './textLine.js';
+import {
+	getVectorLocation,
+	drawLineWalls,
+	drawLineFloor,
+	drawObject,
+	drawCorner,
+	calculatePlayerCoords,
+} from './drawUitls.js';
 const {
 	Vector,
 	Vector3,
@@ -170,145 +178,10 @@ export class BruinRunScene extends Base_Scene {
 		});
 	}
 
-	// turnTo(direction, zDistsance) {
-	// 	let transfromation = Mat4.identity();
-	// 	if (direction === POS_Z) {
-	// 		transfromation = transfromation.times(
-	// 			Mat4.translation(0, 0, -2 * zDistsance)
-	// 		);
-	// 		transfromation = transfromation.times(Mat4.scale(1, 1, -1));
-	// 	} else if (direction === POS_X) {
-	// 		transfromation = transfromation.times(
-	// 			Mat4.rotation(Math.PI / 2, 0, 1, 0)
-	// 		);
-	// 	} else if (direction === NEG_X) {
-	// 		transfromation = transfromation.times(
-	// 			Mat4.rotation((3 * Math.PI) / 2, 0, 1, 0)
-	// 		);
-	// 	}
-	// 	return transfromation;
-	// }
-
-	getVectorLocation(column, zDistsance, direction = NEG_Z) {
-		let model_transform = Mat4.identity();
-		const turnAngle = {};
-		turnAngle[NEG_Z] = 0;
-		turnAngle[POS_Z] = Math.PI;
-		turnAngle[POS_X] = Math.PI / 2;
-		turnAngle[NEG_X] = (3 * Math.PI) / 2;
-		// console.log(turnAngle[direction]);
-		model_transform = model_transform.times(
-			Mat4.rotation(turnAngle[direction], 0, 1, 0)
-		);
-		model_transform = model_transform.times(
-			Mat4.translation(column * COLUMN_WIDTH, 0, zDistsance)
-		);
-		return model_transform;
-	}
-
-	drawLineWalls(context, program_state, length, initialTransform) {
-		let model_transform = initialTransform;
-		model_transform = model_transform.times(
-			Mat4.translation(-NUM_COLUMNS * 2 + 1, 0, -1)
-		);
-
-		for (let i = 0; i != length; i++) {
-			this.shapes.cube.draw(
-				context,
-				program_state,
-				model_transform,
-				this.materials.bricks
-			);
-			model_transform.post_multiply(
-				Mat4.translation(NUM_COLUMNS * 4 - 2, 0, 0)
-			);
-			this.shapes.cube.draw(
-				context,
-				program_state,
-				model_transform,
-				this.materials.bricks
-			);
-			model_transform.post_multiply(
-				Mat4.translation(-1 * NUM_COLUMNS * 4 + 2, 0, -2)
-			);
-		}
-
-		return model_transform;
-	}
-
-	drawLineFloor(context, program_state, length, initialTransform) {
-		let model_transform = initialTransform;
-
-		model_transform = model_transform.times(
-			Mat4.scale(2 * NUM_COLUMNS, 0.1, 1)
-		);
-		model_transform = model_transform.times(Mat4.translation(0, -11, -1));
-
-		for (let i = 0; i != length; i++) {
-			this.shapes.cube.draw(
-				context,
-				program_state,
-				model_transform,
-				// model_transform.times(this.turnTo(direction, 2, 2, -2 * i)),
-				this.materials.ground
-			);
-			model_transform.post_multiply(Mat4.translation(0, 0, -2));
-		}
-
-		return model_transform;
-	}
-
-	drawObject(
-		context,
-		program_state,
-		column,
-		zDistsance,
-		type,
-		initialTransform
-	) {
-		const color = hex_color(this.colors[type]);
-		let model_transform = initialTransform;
-
-		model_transform = model_transform.times(
-			Mat4.translation(column * COLUMN_WIDTH, 0, zDistsance)
-		);
-		type === COIN
-			? this.shapes.cube.draw(
-					context,
-					program_state,
-					model_transform
-						.times(Mat4.scale(0.3, 0.3, 0.3))
-						.times(Mat4.translation(0, 1.7, 0)),
-					this.materials.plastic.override({ color: color })
-			  )
-			: this.shapes.cube.draw(
-					context,
-					program_state,
-					type === OVERHEAD
-						? model_transform
-								.times(Mat4.translation(column, 1.4, 0))
-								.times(Mat4.scale(3, 0.3, 1))
-						: model_transform
-								.times(Mat4.translation(column, 0, 0))
-								.times(Mat4.scale(3, 1, 1)),
-					this.materials.bricks
-			  );
-
-		return model_transform;
-	}
 	drawPlayer(context, program_state, column, direction, type, playerCoords) {
-		const color = hex_color(this.colors[type]);
 		let model_transform = Mat4.identity();
 
-		let [x, y, z] = playerCoords;
-
-		if (this.game.getDirection() == NEG_X) {
-			z += column * COLUMN_WIDTH;
-		} else if (this.game.getDirection() == POS_X) {
-			z -= column * COLUMN_WIDTH;
-		} else if (this.game.getDirection() == NEG_Z) {
-			x += column * COLUMN_WIDTH;
-		}
+		let [x, y, z] = calculatePlayerCoords(playerCoords);
 
 		model_transform = model_transform.times(Mat4.translation(...[x, y, z]));
 		const turnAngle = {};
@@ -428,11 +301,24 @@ export class BruinRunScene extends Base_Scene {
 		return model_transform;
 	}
 
-	setUpCenters(context, program_state, column, zDistance, type) {
-		let model_transform = Mat4.identity();
+	setUpCenters(
+		context,
+		program_state,
+		column,
+		zDistance,
+		type,
+		initialTransform
+	) {
+		let model_transform = initialTransform;
+		console.log(
+			typeof [...model_transform.transposed()][3][0],
+			[...model_transform.transposed()][3][0]
+		);
+
 		model_transform = model_transform.times(
 			Mat4.translation(column * COLUMN_WIDTH, 0, zDistance)
 		);
+		// console.log(...model_transform.transposed()[3]);
 
 		// x, y, Center position
 		// x is LEFT, MIDDLE, RIGHT
@@ -440,46 +326,16 @@ export class BruinRunScene extends Base_Scene {
 		// in array, object z is index 4
 		type === COIN
 			? this.coinCenters.push([
-					column * COLUMN_WIDTH,
+					[...model_transform.transposed()][3][0],
 					0,
 					...model_transform.transposed()[3],
 			  ])
 			: this.obstacleCenters.push([
-					column * COLUMN_WIDTH,
+					[...model_transform.transposed()][3][0],
 					type === OVERHEAD ? OVERHEAD_Y : OBSTACLE_Y,
 					...model_transform.transposed()[3],
 			  ]);
-		return model_transform;
-	}
-
-	drawObject(context, program_state, column, zDistance, type) {
-		const color = hex_color(this.colors[type]);
-		let model_transform = Mat4.identity();
-		model_transform = model_transform.times(
-			Mat4.translation(column * COLUMN_WIDTH, 0, zDistance)
-		);
-		type === COIN
-			? this.shapes.cube.draw(
-					context,
-					program_state,
-					model_transform
-						.times(Mat4.scale(0.3, 0.3, 0.3))
-						.times(Mat4.translation(0, 1.7, 0)),
-					this.materials.plastic.override({ color: color })
-			  )
-			: this.shapes.cube.draw(
-					context,
-					program_state,
-					type === OVERHEAD
-						? model_transform
-								.times(Mat4.translation(column, OVERHEAD_Y, 0))
-								.times(Mat4.scale(3, 0.3, 1))
-						: model_transform
-								.times(Mat4.translation(column, OBSTACLE_Y, 0))
-								.times(Mat4.scale(3, 1, 1)),
-					this.materials.bricks
-			  );
-
+		console.log(this.obstacleCenters[0]);
 		return model_transform;
 	}
 
@@ -530,26 +386,33 @@ export class BruinRunScene extends Base_Scene {
 		const paths = this.game.getPaths();
 		paths.forEach((e) => {
 			if (e.type === STRAIGHT_LINE_PATH) {
-				this.drawLineWalls(
+				drawLineWalls(
 					context,
 					program_state,
 					e.length,
-					e.getInitialTransform()
+					e.getInitialTransform(),
+					this.shapes.cube,
+					this.materials.bricks
 				);
-				this.drawLineFloor(
+				drawLineFloor(
 					context,
 					program_state,
 					e.length,
-					e.getInitialTransform()
+					e.getInitialTransform(),
+					this.shapes.cube,
+					this.materials.ground
 				);
 				e.objects.forEach((object) => {
-					this.drawObject(
+					drawObject(
 						context,
 						program_state,
 						object.column,
 						object.z,
 						object.type,
-						e.getInitialTransform()
+						e.getInitialTransform(),
+						this.shapes.cube,
+						this.materials.plastic,
+						this.materials.bricks
 					);
 				});
 				e.objects.forEach((object) => {
@@ -558,9 +421,20 @@ export class BruinRunScene extends Base_Scene {
 						program_state,
 						object.column,
 						object.z,
-						object.type
+						object.type,
+						e.getInitialTransform()
 					);
 				});
+			} else if (e.type === TURN) {
+				drawCorner(
+					context,
+					program_state,
+					e.getInitialTransform(),
+					e.turnDirection,
+					this.shapes.cube,
+					this.materials.ground,
+					this.materials.bricks
+				);
 			}
 		});
 	}
@@ -576,11 +450,11 @@ export class BruinRunScene extends Base_Scene {
 		if (this.game.gameStarted) {
 			if (!this.game.gameEnded) {
 				this.distances = this.obstacleCenters.map((pos) => {
-					const player_x = this.game.getPlayerColumn() * COLUMN_WIDTH;
+					const player_x = this.game.getPlayerCoords()[0];
 					const player_y = this.game.isDucking()
 						? OBSTACLE_Y + 0.1
 						: OVERHEAD_Y + 0.1;
-					const player_z = this.game.getPlayerZDistance();
+					const player_z = this.game.getPlayerCoords()[2];
 
 					return [
 						player_x,
@@ -591,7 +465,7 @@ export class BruinRunScene extends Base_Scene {
 						pos[4],
 					];
 				});
-
+				// -z, -x, +x
 				const collide = this.distances.some((dist) => {
 					if (dist[0] === dist[3] && dist[1] > dist[4]) {
 						if (dist[2] < dist[5] + 1 && dist[2] > dist[5] - 1)
@@ -613,26 +487,19 @@ export class BruinRunScene extends Base_Scene {
 				);
 				this.drawPaths(context, program_state);
 
-				// draw objects
-				// this.game.getObjects().forEach((object) => {
-				// 	this.drawObject(
-				// 		context,
-				// 		program_state,
-				// 		object.column,
-				// 		object.z,
-				// 		object.type
-				// 	);
-				// });
-
-				// // draw floor
-				// this.drawFloor(context, program_state);
-				// this.drawWalls(context, program_state);
-
 				// set camera
+
+				let model_transform = Mat4.identity();
+
+				let [x, y, z] = this.game.getPlayerCoords();
+
+				model_transform = model_transform.times(
+					Mat4.translation(...[x, y, z])
+				);
 				let desired = Mat4.inverse(
-					this.getVectorLocation(
-						this.game.getPlayerColumn(),
-						this.game.getPlayerZDistance()
+					getVectorLocation(
+						calculatePlayerCoords(this.game.getPlayerCoords()),
+						this.game.getDirection()
 					).times(Mat4.translation(0, 7, 20))
 				);
 				desired = desired.map((x, i) =>

@@ -1,9 +1,6 @@
-<<<<<<< HEAD
-=======
 import { tiny } from './examples/common.js';
 const { Mat4 } = tiny;
 
->>>>>>> transitioning to brendans changes
 const PLAYER = 'player';
 const OBSTACLE = 'obstacle';
 const OVERHEAD = 'overhead';
@@ -28,11 +25,10 @@ const INITIAL_GAME_STATE = {
 	playerColumn: MIDDLE,
 	timeElapsed: 0,
 	duck: false,
-<<<<<<< HEAD
-=======
-	direction: NEG_Z,
-	playerCoords: [0, 0, 0],
->>>>>>> transitioning to brendans changes
+	direction: NEG_X,
+	playerCoords: [-12, 0, -212],
+	// direction: NEG_Z,
+	// playerCoords: [0, 0, 0],
 };
 
 const objects = [
@@ -285,7 +281,7 @@ export class BruinTempleRun {
 	constructor() {
 		this.setStateToInitial();
 		const p = [
-			new StraightLinePath(objects, 100, NEG_Z),
+			new StraightLinePath([], 100, NEG_Z),
 			new Turn(NEG_Z, LEFT),
 			new StraightLinePath(objects, 100, NEG_X),
 			// new StraightLinePath(objects, 100, NEG_Z, [0, 0, 0]),
@@ -296,6 +292,8 @@ export class BruinTempleRun {
 		this.paths = paths.getPaths();
 		this.paused = true;
 		this.speed = SPEED;
+		this.gameStarted = true;
+		this.gameEnded = false;
 	}
 
 	setStateToInitial() {
@@ -317,15 +315,14 @@ export class BruinTempleRun {
 		this.state.playerCoords = [x, y, z];
 	}
 
-	recalculateCoordsAfterTurn() {
+	recalculateCoordsAfterTurn(turn) {
 		let [x, y, z] = this.state.playerCoords;
-
 		if (this.state.direction == NEG_X) {
-			z += this.state.playerColumn * (COLUMN_WIDTH + 1);
+			z += turn * COLUMN_WIDTH;
 		} else if (this.state.direction == POS_X) {
-			z -= this.state.playerColumn * (COLUMN_WIDTH + 1);
+			z -= turn * COLUMN_WIDTH;
 		} else if (this.state.direction == NEG_Z) {
-			x += this.state.playerColumn * (COLUMN_WIDTH + 1);
+			x += turn * COLUMN_WIDTH;
 		}
 		this.state.playerCoords = [x, y, z];
 	}
@@ -334,22 +331,26 @@ export class BruinTempleRun {
 		if (!this.paused) {
 			if (this.state.playerColumn === RIGHT) {
 				this.state.playerColumn = MIDDLE;
-				// this.recalculateCoordsAfterTurn();
+				// this.recalculateCoordsAfterTurn(LEFT);
 			} else if (this.state.playerColumn === MIDDLE) {
 				this.state.playerColumn = LEFT;
-				// this.recalculateCoordsAfterTurn();
+				// this.recalculateCoordsAfterTurn(LEFT);
 			}
 		}
 	}
 
 	movePlayerRight() {
 		if (!this.paused) {
-			if (this.state.playerColumn === LEFT) {
-				this.state.playerColumn = MIDDLE;
-				// this.recalculateCoordsAfterTurn();
-			} else if (this.state.playerColumn === MIDDLE) {
-				this.state.playerColumn = RIGHT;
-				// this.recalculateCoordsAfterTurn();
+			if (true) {
+				this.state.direction = NEG_X;
+			} else {
+				if (this.state.playerColumn === LEFT) {
+					this.state.playerColumn = MIDDLE;
+					this.recalculateCoordsAfterTurn(RIGHT);
+				} else if (this.state.playerColumn === MIDDLE) {
+					this.state.playerColumn = RIGHT;
+					this.recalculateCoordsAfterTurn(RIGHT);
+				}
 			}
 		}
 	}
@@ -426,6 +427,9 @@ class SubPath {
 			);
 		}
 		return transfromation;
+	}
+	getInitialCoords() {
+		return this.startPoint;
 	}
 }
 
