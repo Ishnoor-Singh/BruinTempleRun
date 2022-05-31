@@ -610,6 +610,7 @@ export class BruinRunScene extends Base_Scene {
 				if (!this.deadCoins.includes(getCoin[0])) {
 					console.log('got coin', getCoin);
 					this.deadCoins.push(getCoin[0]);
+					this.game.setPlayerCoins(this.game.getPlayerCoins() + 1);
 				}
 
 				this.drawPlayer(

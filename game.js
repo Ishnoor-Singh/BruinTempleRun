@@ -336,12 +336,10 @@ export class BruinTempleRun {
 
 	movePlayerLeft() {
 		if (!this.paused) {
-			if (this.state.playerColumn === RIGHT) {
-				this.state.playerColumn = MIDDLE;
-				// this.recalculateCoordsAfterTurn(LEFT);
-			} else if (this.state.playerColumn === MIDDLE) {
-				this.state.playerColumn = LEFT;
-				// this.recalculateCoordsAfterTurn(LEFT);
+			if (this.state.direction === NEG_Z) {
+				this.state.direction = POS_X;
+			} else if (this.state.direction === NEG_X) {
+				this.state.direction = NEG_Z;
 			}
 		}
 	}
@@ -358,28 +356,6 @@ export class BruinTempleRun {
 
 	slidePlayerLeft() {
 		if (!this.paused) {
-			// if (this.state.playerColumn === RIGHT) {
-			// 	this.state.playerColumn = MIDDLE;
-			// 	this.recalculateCoordsAfterSlide(LEFT);
-			// 	return true;
-			// } else if (this.state.playerColumn === MIDDLE) {
-			// 	this.recalculateCoordsAfterSlide(LEFT);
-			// 	this.state.playerColumn = LEFT;
-			// 	return true;
-			// } else {
-			// 	return false;
-			// }
-			// if (this.state.playerColumn === RIGHT) {
-			// 	this.state.playerColumn = MIDDLE;
-			// 	this.recalculateCoordsAfterSlide(LEFT);
-			// 	return true;
-			// } else if (this.state.playerColumn === MIDDLE) {
-			// 	this.recalculateCoordsAfterSlide(LEFT);
-			// 	this.state.playerColumn = LEFT;
-			// 	return true;
-			// } else {
-			// 	return false;
-			// }
 			let [x, y, z] = this.state.playerCoords;
 
 			const slide = LEFT / 8;
@@ -396,17 +372,6 @@ export class BruinTempleRun {
 
 	slidePlayerRight() {
 		if (!this.paused) {
-			// if (this.state.playerColumn === LEFT) {
-			// 	this.recalculateCoordsAfterSlide(RIGHT);
-			// 	this.state.playerColumn = MIDDLE;
-			// 	return true;
-			// } else if (this.state.playerColumn === MIDDLE) {
-			// 	this.recalculateCoordsAfterSlide(RIGHT);
-			// 	this.state.playerColumn = RIGHT;
-			// 	return true;
-			// } else {
-			// 	return false;
-			// }
 			let [x, y, z] = this.state.playerCoords;
 
 			const slide = RIGHT / 8;
