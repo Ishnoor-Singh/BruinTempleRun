@@ -348,55 +348,81 @@ export class BruinTempleRun {
 
 	movePlayerRight() {
 		if (!this.paused) {
-			if (true) {
+			if (this.state.direction === NEG_Z) {
 				this.state.direction = NEG_X;
-			} else {
-				if (this.state.playerColumn === LEFT) {
-					this.state.playerColumn = MIDDLE;
-					this.recalculateCoordsAfterTurn(RIGHT);
-				} else if (this.state.playerColumn === MIDDLE) {
-					this.state.playerColumn = RIGHT;
-					this.recalculateCoordsAfterTurn(RIGHT);
-				}
+			} else if (this.state.direction === POS_X) {
+				this.state.direction = NEG_Z;
 			}
 		}
 	}
 
 	slidePlayerLeft() {
-	    if (!this.paused) {
-	      if (this.state.playerColumn === RIGHT) {
-	        this.state.playerColumn = MIDDLE;
-			this.recalculateCoordsAfterSlide(LEFT);
-	        return true;
-	      } else if (this.state.playerColumn === MIDDLE) {
-			this.recalculateCoordsAfterSlide(LEFT);
-	        this.state.playerColumn = LEFT;
-	        return true;
-	      } else {
-	        return false;
-	      }
-	    }
-	  }
+		if (!this.paused) {
+			// if (this.state.playerColumn === RIGHT) {
+			// 	this.state.playerColumn = MIDDLE;
+			// 	this.recalculateCoordsAfterSlide(LEFT);
+			// 	return true;
+			// } else if (this.state.playerColumn === MIDDLE) {
+			// 	this.recalculateCoordsAfterSlide(LEFT);
+			// 	this.state.playerColumn = LEFT;
+			// 	return true;
+			// } else {
+			// 	return false;
+			// }
+			// if (this.state.playerColumn === RIGHT) {
+			// 	this.state.playerColumn = MIDDLE;
+			// 	this.recalculateCoordsAfterSlide(LEFT);
+			// 	return true;
+			// } else if (this.state.playerColumn === MIDDLE) {
+			// 	this.recalculateCoordsAfterSlide(LEFT);
+			// 	this.state.playerColumn = LEFT;
+			// 	return true;
+			// } else {
+			// 	return false;
+			// }
+			let [x, y, z] = this.state.playerCoords;
 
-     slidePlayerRight() {
-	    if (!this.paused) {
-	      if (this.state.playerColumn === LEFT) {
-			this.recalculateCoordsAfterSlide(RIGHT);
-	        this.state.playerColumn = MIDDLE;
-	        return true;
-	      } else if (this.state.playerColumn === MIDDLE) {
-			this.recalculateCoordsAfterSlide(RIGHT);
-	        this.state.playerColumn = RIGHT;
-	        return true;
-	      } else {
-	        return false;
-	      }
-	    }
-	  }
+			const slide = LEFT / 8;
+			if (this.state.direction == NEG_X) {
+				z += slide * this.speed;
+			} else if (this.state.direction == POS_X) {
+				z -= slide * this.speed;
+			} else if (this.state.direction == NEG_Z) {
+				x += slide * this.speed;
+			}
+			this.state.playerCoords = [x, y, z];
+		}
+	}
+
+	slidePlayerRight() {
+		if (!this.paused) {
+			// if (this.state.playerColumn === LEFT) {
+			// 	this.recalculateCoordsAfterSlide(RIGHT);
+			// 	this.state.playerColumn = MIDDLE;
+			// 	return true;
+			// } else if (this.state.playerColumn === MIDDLE) {
+			// 	this.recalculateCoordsAfterSlide(RIGHT);
+			// 	this.state.playerColumn = RIGHT;
+			// 	return true;
+			// } else {
+			// 	return false;
+			// }
+			let [x, y, z] = this.state.playerCoords;
+
+			const slide = RIGHT / 8;
+			if (this.state.direction == NEG_X) {
+				z += slide * this.speed;
+			} else if (this.state.direction == POS_X) {
+				z -= slide * this.speed;
+			} else if (this.state.direction == NEG_Z) {
+				x += slide * this.speed;
+			}
+			this.state.playerCoords = [x, y, z];
+		}
+	}
 
 	pauseGame() {
-		if(this.gameStarted)
-			this.paused = !this.paused;
+		if (this.gameStarted) this.paused = !this.paused;
 	}
 
 	restartGame() {
