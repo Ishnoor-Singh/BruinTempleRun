@@ -10,8 +10,15 @@ const LEFT = -1;
 const MIDDLE = 0;
 const RIGHT = 1;
 
-const COLUMN_WIDTH = 5;
-const SPEED = 8;
+const COLUMN_WIDTH = 6;
+const SPEED = 15;
+
+const STRAIGHT_LINE_PATH = 'straightLinePath';
+const TURN = 'turn';
+
+const NEG_Z = '-z';
+const POS_X = '+x';
+const NEG_X = '-x';
 
 const STRAIGHT_LINE_PATH = 'straightLinePath';
 const TURN = 'turn';
@@ -25,8 +32,15 @@ const INITIAL_GAME_STATE = {
 	playerColumn: MIDDLE,
 	timeElapsed: 0,
 	duck: false,
+<<<<<<< HEAD
 	direction: NEG_Z,
 	playerCoords: [0, 0, 0],
+=======
+	direction: NEG_X,
+	playerCoords: [-12, 0, -212],
+	// direction: NEG_Z,
+	// playerCoords: [0, 0, 0],
+>>>>>>> 273420b
 };
 
 const objects = [
@@ -279,7 +293,11 @@ export class BruinTempleRun {
 	constructor() {
 		this.setStateToInitial();
 		const p = [
+<<<<<<< HEAD
 			new StraightLinePath(objects, 100, NEG_Z),
+=======
+			new StraightLinePath([], 100, NEG_Z),
+>>>>>>> 273420b
 			new Turn(NEG_Z, LEFT),
 			new StraightLinePath(objects, 100, NEG_X),
 			// new StraightLinePath(objects, 100, NEG_Z, [0, 0, 0]),
@@ -290,6 +308,11 @@ export class BruinTempleRun {
 		this.paths = paths.getPaths();
 		this.paused = true;
 		this.speed = SPEED;
+<<<<<<< HEAD
+=======
+		this.gameStarted = true;
+		this.gameEnded = false;
+>>>>>>> 273420b
 	}
 
 	setStateToInitial() {
@@ -311,6 +334,7 @@ export class BruinTempleRun {
 		this.state.playerCoords = [x, y, z];
 	}
 
+<<<<<<< HEAD
 	recalculateCoordsAfterTurn() {
 		let [x, y, z] = this.state.playerCoords;
 
@@ -320,6 +344,16 @@ export class BruinTempleRun {
 			z -= this.state.playerColumn * (COLUMN_WIDTH + 1);
 		} else if (this.state.direction == NEG_Z) {
 			x += this.state.playerColumn * (COLUMN_WIDTH + 1);
+=======
+	recalculateCoordsAfterTurn(turn) {
+		let [x, y, z] = this.state.playerCoords;
+		if (this.state.direction == NEG_X) {
+			z += turn * COLUMN_WIDTH;
+		} else if (this.state.direction == POS_X) {
+			z -= turn * COLUMN_WIDTH;
+		} else if (this.state.direction == NEG_Z) {
+			x += turn * COLUMN_WIDTH;
+>>>>>>> 273420b
 		}
 		this.state.playerCoords = [x, y, z];
 	}
@@ -328,22 +362,42 @@ export class BruinTempleRun {
 		if (!this.paused) {
 			if (this.state.playerColumn === RIGHT) {
 				this.state.playerColumn = MIDDLE;
+<<<<<<< HEAD
 				// this.recalculateCoordsAfterTurn();
 			} else if (this.state.playerColumn === MIDDLE) {
 				this.state.playerColumn = LEFT;
 				// this.recalculateCoordsAfterTurn();
+=======
+				// this.recalculateCoordsAfterTurn(LEFT);
+			} else if (this.state.playerColumn === MIDDLE) {
+				this.state.playerColumn = LEFT;
+				// this.recalculateCoordsAfterTurn(LEFT);
+>>>>>>> 273420b
 			}
 		}
 	}
 
 	movePlayerRight() {
 		if (!this.paused) {
+<<<<<<< HEAD
 			if (this.state.playerColumn === LEFT) {
 				this.state.playerColumn = MIDDLE;
 				// this.recalculateCoordsAfterTurn();
 			} else if (this.state.playerColumn === MIDDLE) {
 				this.state.playerColumn = RIGHT;
 				// this.recalculateCoordsAfterTurn();
+=======
+			if (true) {
+				this.state.direction = NEG_X;
+			} else {
+				if (this.state.playerColumn === LEFT) {
+					this.state.playerColumn = MIDDLE;
+					this.recalculateCoordsAfterTurn(RIGHT);
+				} else if (this.state.playerColumn === MIDDLE) {
+					this.state.playerColumn = RIGHT;
+					this.recalculateCoordsAfterTurn(RIGHT);
+				}
+>>>>>>> 273420b
 			}
 		}
 	}
@@ -354,6 +408,13 @@ export class BruinTempleRun {
 
 	restartGame() {
 		this.setStateToInitial();
+<<<<<<< HEAD
+=======
+		if (this.gameEnded) {
+			this.gameEnded = false;
+			this.paused = true;
+		}
+>>>>>>> 273420b
 	}
 
 	getPlayerColumn() {
@@ -379,7 +440,9 @@ export class BruinTempleRun {
 	isDucking() {
 		return this.state.duck;
 	}
-
+	endGame() {
+		this.gameEnded = true;
+	}
 	getPaths() {
 		return this.paths;
 	}
@@ -414,6 +477,9 @@ class SubPath {
 			);
 		}
 		return transfromation;
+	}
+	getInitialCoords() {
+		return this.startPoint;
 	}
 }
 
