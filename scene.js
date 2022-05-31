@@ -173,16 +173,16 @@ export class BruinRunScene extends Base_Scene {
 		});
 		this.key_triggered_button('Down', ['k'], () => {
 			this.game.toggleDuck();
-			setTimeout(() => {
-				this.game.toggleDuck();
-			}, 2000);
+			// setTimeout(() => {
+			// 	this.game.toggleDuck();
+			// }, 2000);
 		});
 	}
 
 	drawPlayer(context, program_state, column, direction, type, playerCoords) {
 		let model_transform = Mat4.identity();
 
-		let [x, y, z] = calculatePlayerCoords(playerCoords);
+		let [x, y, z] = calculatePlayerCoords(playerCoords, direction, column);
 
 		model_transform = model_transform.times(Mat4.translation(...[x, y, z]));
 		const turnAngle = {};
@@ -375,7 +375,7 @@ export class BruinRunScene extends Base_Scene {
 		this.baseScreenSetup(context, program_state);
 
 		let strings = [
-			'\t\t\t\t\t\t\t\tGame Over \n\n\n\t\t\t\t\t\t\t\t[R]estart',
+			'\t\t\t\t\t\t\t\tGame Over \n\n\n\t\t\t\t\t\t\t\t[r]estart',
 		];
 		let cube_side = Mat4.translation(-1.8, 0, 1);
 		const multi_line_string = strings[0].split('\n');
@@ -386,7 +386,7 @@ export class BruinRunScene extends Base_Scene {
 		this.baseScreenSetup(context, program_state);
 
 		let strings = [
-			'\t\t\t\t\t\t\t\tBruin Temple Run\n\n\n\t\t\t\t\t\t\t\t[S]tart',
+			'\t\t\t\t\t\tBruin Temple Run\n\n\n\t\t\t\t\t\t[s]tart',
 		];
 		let cube_side = Mat4.translation(-1.8, 0, 1);
 		const multi_line_string = strings[0].split('\n');
@@ -493,7 +493,6 @@ export class BruinRunScene extends Base_Scene {
 					this.game.getPlayerColumn(),
 					this.game.getDirection(),
 					PLAYER,
-					// this.game.getDirection(),
 					this.game.getPlayerCoords()
 				);
 				this.drawPaths(context, program_state);
