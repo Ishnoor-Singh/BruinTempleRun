@@ -1,6 +1,7 @@
 export const PLAYER = 'player';
 export const OBSTACLE = 'obstacle';
 export const OVERHEAD = 'overhead';
+export const WALL = 'wall';
 export const COIN = 'coin';
 export const OVERHEAD_WITH_COIN = 'overhead with coin';
 export const LEFT = -1;

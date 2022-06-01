@@ -62,7 +62,8 @@ export function drawLineWalls(
 	length,
 	initialTransform,
 	cube,
-	material
+	material,
+	obstacles
 ) {
 	let model_transform = initialTransform;
 	model_transform = model_transform.times(
@@ -71,9 +72,39 @@ export function drawLineWalls(
 
 	for (let i = 0; i != length; i++) {
 		cube.draw(context, program_state, model_transform, material);
+		//
+		let obj = {};
+		obj.center = [...model_transform.transposed()][3];
+		let [cx, cy, cz] = [...model_transform.transposed()][3];
+		let [wx, wy, wz] = [3, 2, 3];
+		obj.bounds = {
+			minX: cx - wx,
+			minY: cy - wy,
+			minZ: cz - wz,
+			maxX: cx + wx,
+			maxY: cy + wy,
+			maxZ: cz + wz,
+		};
+		obstacles[`${[...initialTransform.transposed()][3]},${i}-1`] = obj;
+		//
 		model_transform.post_multiply(
 			Mat4.translation(NUM_COLUMNS * 4 - 2, 0, 0)
 		);
+		//
+		obj = {};
+		obj.center = [...model_transform.transposed()][3];
+		[cx, cy, cz] = [...model_transform.transposed()][3];
+		[wx, wy, wz] = [3, 2, 3];
+		obj.bounds = {
+			minX: cx - wx,
+			minY: cy - wy,
+			minZ: cz - wz,
+			maxX: cx + wx,
+			maxY: cy + wy,
+			maxZ: cz + wz,
+		};
+		obstacles[`${[...initialTransform.transposed()][3]},${i}-2`] = obj;
+		//
 		cube.draw(context, program_state, model_transform, material);
 		model_transform.post_multiply(
 			Mat4.translation(-1 * NUM_COLUMNS * 4 + 2, 0, -2)
@@ -159,7 +190,8 @@ export function drawCorner(
 	turnDirection,
 	cube,
 	ground,
-	brick
+	brick,
+	obstacles
 ) {
 	drawLineFloor(context, program_state, 12, initialTransform, cube, ground);
 	// draw sides
@@ -171,11 +203,45 @@ export function drawCorner(
 	for (let i = 0; i != 12; i++) {
 		turnDirection === LEFT &&
 			cube.draw(context, program_state, model_transform, brick);
+		//
+		let obj = {};
+		obj.center = [...model_transform.transposed()][3];
+		let [cx, cy, cz] = [...model_transform.transposed()][3];
+		let [wx, wy, wz] = [3, 2, 3];
+		obj.bounds = {
+			minX: cx - wx,
+			minY: cy - wy,
+			minZ: cz - wz,
+			maxX: cx + wx,
+			maxY: cy + wy,
+			maxZ: cz + wz,
+		};
+		turnDirection === LEFT &&
+			(obstacles[`${[...initialTransform.transposed()][3]},${i}-1`] =
+				obj);
+		//
 		model_transform.post_multiply(
 			Mat4.translation(NUM_COLUMNS * 4 - 2, 0, 0)
 		);
 		turnDirection === RIGHT &&
 			cube.draw(context, program_state, model_transform, brick);
+		//
+		obj = {};
+		obj.center = [...model_transform.transposed()][3];
+		[cx, cy, cz] = [...model_transform.transposed()][3];
+		[wx, wy, wz] = [3, 2, 3];
+		obj.bounds = {
+			minX: cx - wx,
+			minY: cy - wy,
+			minZ: cz - wz,
+			maxX: cx + wx,
+			maxY: cy + wy,
+			maxZ: cz + wz,
+		};
+		turnDirection === RIGHT &&
+			(obstacles[`${[...initialTransform.transposed()][3]},${i}-2`] =
+				obj);
+		//
 		model_transform.post_multiply(
 			Mat4.translation(-1 * NUM_COLUMNS * 4 + 2, 0, -2)
 		);
@@ -186,6 +252,19 @@ export function drawCorner(
 	model_transform = model_transform.times(Mat4.translation(-10, 0, -23));
 	for (let i = 0; i != 12; i++) {
 		cube.draw(context, program_state, model_transform, brick);
+		let obj = {};
+		obj.center = [...model_transform.transposed()][3];
+		let [cx, cy, cz] = [...model_transform.transposed()][3];
+		let [wx, wy, wz] = [3, 2, 3];
+		obj.bounds = {
+			minX: cx - wx,
+			minY: cy - wy,
+			minZ: cz - wz,
+			maxX: cx + wx,
+			maxY: cy + wy,
+			maxZ: cz + wz,
+		};
+		obstacles[`${[...initialTransform.transposed()][3]},${i}-1`] = obj;
 		model_transform.post_multiply(Mat4.translation(2, 0, 0));
 	}
 	return model_transform;

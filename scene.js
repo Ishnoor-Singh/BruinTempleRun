@@ -550,7 +550,8 @@ export class BruinRunScene extends Base_Scene {
 					e.length,
 					e.getInitialTransform(),
 					this.shapes.cube,
-					this.materials.bricks
+					this.materials.bricks,
+					this.obstacles
 				);
 				drawLineFloor(
 					context,
@@ -591,7 +592,8 @@ export class BruinRunScene extends Base_Scene {
 					e.turnDirection,
 					this.shapes.cube,
 					this.materials.ground,
-					this.materials.bricks
+					this.materials.bricks,
+					this.obstacles
 				);
 			}
 		});
@@ -629,12 +631,15 @@ export class BruinRunScene extends Base_Scene {
 					]);
 				});
 
-				if (!this.deadCoins.includes(getCoin[0]) && Object.keys(getCoin).length !== 0) {
+				if (
+					!this.deadCoins.includes(getCoin[0]) &&
+					Object.keys(getCoin).length !== 0
+				) {
 					// console.log('got coin', getCoin);
 					this.deadCoins.push(getCoin[0]);
-					
+
 					// getCoin has coin location (z and column) + path it is on
-					this.game.removePathObjects(getCoin[0].split(','))
+					this.game.removePathObjects(getCoin[0].split(','));
 
 					this.game.setPlayerCoins(this.game.getPlayerCoins() + 1);
 					this.game.setPlayerSpeed(this.game.getPlayerSpeed() + 0.1);
