@@ -132,7 +132,7 @@ export function drawObject(
 				context,
 				program_state,
 				model_transform
-					.times(Mat4.scale(0.3, 0.3, 0.3))
+					.times(Mat4.scale(0.4, 0.4, 0.4))
 					.times(Mat4.translation(0, 1.7, 0)),
 				plastic.override({ color: hex_color('#fed93d') })
 		  )

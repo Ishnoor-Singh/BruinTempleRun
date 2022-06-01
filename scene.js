@@ -171,6 +171,11 @@ export class BruinRunScene extends Base_Scene {
 		});
 		this.key_triggered_button('Restart', ['r'], () => {
 			this.game.restartGame();
+			this.coinCenters = [];
+			this.obstacleCenters = [];
+			this.coins = {};
+			this.obstacles = {};
+			this.deadCoins = [];
 		});
 		this.key_triggered_button('Start', ['s'], () => {
 			this.game.startGame();
@@ -186,9 +191,6 @@ export class BruinRunScene extends Base_Scene {
 	drawPlayer(context, program_state, column, direction, type, playerCoords) {
 		let model_transform = Mat4.identity();
 
-		// let [x, y, z] = calculatePlayerCoords(playerCoords, direction, column);
-
-		// console.log(x)
 		model_transform = model_transform.times(
 			Mat4.translation(...playerCoords)
 		);
@@ -308,6 +310,158 @@ export class BruinRunScene extends Base_Scene {
 		return model_transform;
 	}
 
+	// From text-demo.js
+	screenSetup(context, program_state) {
+		program_state.lights = [
+			new Light(vec4(0, 1, 1, 0), color(1, 1, 1, 1), 1000000),
+		];
+		program_state.set_camera(
+			Mat4.look_at(...Vector.cast([0, 0, 4], [0, 0, 0], [0, 1, 0]))
+		);
+
+		let transform = Mat4.scale(2.5, 0.5, 0.5);
+		this.shapes.cube.draw(
+			context,
+			program_state,
+			transform,
+			this.materials.start_background
+		);
+	}
+
+	showDefeatScreen(context, program_state) {
+		this.screenSetup(context, program_state);
+		let gold = color(1, 209 / 255, 0, 1);
+		let blue = color(39 / 255, 116 / 255, 174 / 255, 1);
+		let strings = ['Game Over'];
+		let cube_side = Mat4.translation(-0.6, 0, 1);
+		let multi_line_string = strings[0].split('\n');
+		for (let line of multi_line_string.slice(0, 30)) {
+			this.shapes.text.set_string(line, context.context);
+			this.shapes.text.draw(
+				context,
+				program_state,
+				cube_side.times(Mat4.scale(0.1, 0.1, 0.1)),
+				this.materials.text_image.override({ color: blue })
+			);
+		}
+		strings = ['[R]estart'];
+		cube_side = Mat4.translation(-0.6, -0.25, 1);
+		multi_line_string = strings[0].split('\n');
+		for (let line of multi_line_string.slice(0, 30)) {
+			this.shapes.text.set_string(line, context.context);
+			this.shapes.text.draw(
+				context,
+				program_state,
+				cube_side.times(Mat4.scale(0.1, 0.1, 0.1)),
+				this.materials.text_image.override({ color: gold })
+			);
+		}
+	}
+
+	showStartScreen(context, program_state) {
+		this.screenSetup(context, program_state);
+		let gold = color(1, 209 / 255, 0, 1);
+		let blue = color(39 / 255, 116 / 255, 174 / 255, 1);
+		let strings = ['Bruin Temple Run'];
+		let cube_side = Mat4.translation(-1.07, 0.12, 1);
+		let multi_line_string = strings[0].split('\n');
+		for (let line of multi_line_string.slice(0, 30)) {
+			this.shapes.text.set_string(line, context.context);
+			this.shapes.text.draw(
+				context,
+				program_state,
+				cube_side.times(Mat4.scale(0.1, 0.1, 0.1)),
+				this.materials.text_image.override({ color: gold })
+			);
+		}
+		strings = ['[S]tart'];
+		cube_side = Mat4.translation(-0.5, -0.12, 1);
+		multi_line_string = strings[0].split('\n');
+		for (let line of multi_line_string.slice(0, 30)) {
+			this.shapes.text.set_string(line, context.context);
+			this.shapes.text.draw(
+				context,
+				program_state,
+				cube_side.times(Mat4.scale(0.1, 0.1, 0.1)),
+				this.materials.text_image.override({ color: blue })
+			);
+		}
+	}
+
+	showVictoryScreen(context, program_state) {
+		this.screenSetup(context, program_state);
+		let gold = color(1, 209 / 255, 0, 1);
+		let blue = color(39 / 255, 116 / 255, 174 / 255, 1);
+		let strings = ['You won!'];
+		let cube_side = Mat4.translation(-1.07, 0.12, 1);
+		let multi_line_string = strings[0].split('\n');
+		for (let line of multi_line_string.slice(0, 30)) {
+			this.shapes.text.set_string(line, context.context);
+			this.shapes.text.draw(
+				context,
+				program_state,
+				cube_side.times(Mat4.scale(0.1, 0.1, 0.1)),
+				this.materials.text_image.override({ color: gold })
+			);
+		}
+		strings = ['[R]estart'];
+		cube_side = Mat4.translation(-0.5, -0.12, 1);
+		multi_line_string = strings[0].split('\n');
+		for (let line of multi_line_string.slice(0, 30)) {
+			this.shapes.text.set_string(line, context.context);
+			this.shapes.text.draw(
+				context,
+				program_state,
+				cube_side.times(Mat4.scale(0.1, 0.1, 0.1)),
+				this.materials.text_image.override({ color: blue })
+			);
+		}
+	}
+
+	// Shows live text on game screen
+	showLiveText(context, program_state, camera_transform) {
+		// Display coin count
+		let string = ['Coins: ' + this.game.getPlayerCoins()];
+		let multi_line_string = string[0].split('\n');
+
+		// Put it in top right corner
+		let cube_side = camera_transform
+			.times(Mat4.translation(14, 10, -30))
+			.times(Mat4.scale(0.5, 0.5, 0.5));
+
+		let gold = color(1, 209 / 255, 0, 1);
+
+		for (let line of multi_line_string.slice(0, 30)) {
+			this.shapes.text.set_string(line, context.context);
+			this.shapes.text.draw(
+				context,
+				program_state,
+				cube_side,
+				this.materials.text_image.override({ color: gold })
+			);
+		}
+		// Display speed (more coins = more speed)
+		string = ['Speed: ' + this.game.getPlayerSpeed().toFixed(1)];
+		multi_line_string = string[0].split('\n');
+
+		// Put it in top right corner below coin count
+		cube_side = camera_transform
+			.times(Mat4.translation(14, 8, -30))
+			.times(Mat4.scale(0.5, 0.5, 0.5));
+
+		let blue = color(39 / 255, 116 / 255, 174 / 255, 1);
+
+		for (let line of multi_line_string.slice(0, 30)) {
+			this.shapes.text.set_string(line, context.context);
+			this.shapes.text.draw(
+				context,
+				program_state,
+				cube_side,
+				this.materials.text_image.override({ color: blue })
+			);
+		}
+	}
+
 	setUpCenters(
 		context,
 		program_state,
@@ -331,7 +485,7 @@ export class BruinRunScene extends Base_Scene {
 			const obj = {};
 			obj.center = [...model_transform.transposed()][3];
 			const [cx, cy, cz] = [...model_transform.transposed()][3];
-			const [wx, wy, wz] = [1, 3, 1];
+			const [wx, wy, wz] = [1.5, 3, 1.5];
 			obj.bounds = {
 				minX: cx - wx,
 				minY: cy - wy,
@@ -340,11 +494,10 @@ export class BruinRunScene extends Base_Scene {
 				maxY: cy + wy,
 				maxZ: cz + wz,
 			};
-			// this.coins.push(obj);
 			this.coins[
 				`${
 					[...initialTransform.transposed()][3]
-				}:${zDistance},${column}`
+				},${zDistance},${column}`
 			] = obj;
 		} else if (type === OBSTACLE) {
 			const obj = {};
@@ -359,11 +512,10 @@ export class BruinRunScene extends Base_Scene {
 				maxY: cy + wy,
 				maxZ: cz + wz,
 			};
-			// this.obstacles.push(obj);
 			this.obstacles[
 				`${
 					[...initialTransform.transposed()][3]
-				}:${zDistance},${column}`
+				},${zDistance},${column}`
 			] = obj;
 		} else if (type === OVERHEAD) {
 			const obj = {};
@@ -379,127 +531,13 @@ export class BruinRunScene extends Base_Scene {
 				maxY: cy + wy,
 				maxZ: cz + wz,
 			};
-			// this.obstacles.push(obj);
 			this.obstacles[
 				`${
 					[...initialTransform.transposed()][3]
-				}:${zDistance},${column}`
+				},${zDistance},${column}`
 			] = obj;
 		}
-		// x, y, Center position
-		// x is LEFT, MIDDLE, RIGHT
-		// y is 0 for ground obstacle, 1.4 for overhead obstacle
-		// in array, object z is index 4
-		type === COIN
-			? this.coinCenters.push([
-					[...model_transform.transposed()][3][0],
-					0,
-					[...model_transform.transposed()][3][2],
-			  ])
-			: this.obstacleCenters.push([
-					[...model_transform.transposed()][3][0],
-					type === OVERHEAD ? OVERHEAD_Y : OBSTACLE_Y,
-					[...model_transform.transposed()][3][2],
-			  ]);
 		return model_transform;
-	}
-
-	// From text-demo.js
-	baseScreenSetup(context, program_state) {
-		program_state.lights = [
-			new Light(vec4(0, 1, 1, 0), color(1, 1, 1, 1), 1000000),
-		];
-		program_state.set_camera(
-			Mat4.look_at(...Vector.cast([0, 0, 4], [0, 0, 0], [0, 1, 0]))
-		);
-
-		let transform = Mat4.scale(2.5, 0.5, 0.5);
-		this.shapes.cube.draw(
-			context,
-			program_state,
-			transform,
-			this.materials.start_background
-		);
-	}
-
-	// Draws text onto cube side given strings (like in text-demo.js)
-	baseDrawText(context, program_state, multi_line_string, cube_side) {
-		for (let line of multi_line_string.slice(0, 30)) {
-			this.shapes.text.set_string(line, context.context);
-			this.shapes.text.draw(
-				context,
-				program_state,
-				cube_side.times(Mat4.scale(0.1, 0.1, 0.1)),
-				this.materials.text_image
-			);
-			cube_side.post_multiply(Mat4.translation(0, -0.06, 0));
-		}
-	}
-
-	gameLostScreen(context, program_state) {
-		this.baseScreenSetup(context, program_state);
-
-		let strings = [
-			'\t\t\t\t\t\t\t\tGame Over \n\n\n\t\t\t\t\t\t\t\t[R]estart',
-		];
-		let cube_side = Mat4.translation(-1.8, 0, 1);
-		const multi_line_string = strings[0].split('\n');
-		this.baseDrawText(context, program_state, multi_line_string, cube_side);
-	}
-
-	gameStartScreen(context, program_state) {
-		this.baseScreenSetup(context, program_state);
-
-		let strings = ['\t\t\t\t\t\tBruin Temple Run\n\n\n\t\t\t\t\t\t[s]tart'];
-		let cube_side = Mat4.translation(-1.8, 0, 1);
-		const multi_line_string = strings[0].split('\n');
-		this.baseDrawText(context, program_state, multi_line_string, cube_side);
-	}
-
-	// Shows live text on game screen
-	showLiveText(context, program_state, camera_transform) {
-		// Display coin count
-		let string = ['Coins: ' + this.game.getPlayerCoins()];
-		// , 'Speed: ' + this.game.speed
-		let multi_line_string = string[0].split('\n');
-
-		// Put it in top right corner
-		let cube_side = camera_transform
-			.times(Mat4.translation(14, 10, -30))
-			.times(Mat4.scale(0.5, 0.5, 0.5));
-
-		let gold = color(1, 209 / 255, 0, 1);
-
-		for (let line of multi_line_string.slice(0, 30)) {
-			// Set the string using set_string
-			this.shapes.text.set_string(line, context.context);
-			this.shapes.text.draw(
-				context,
-				program_state,
-				cube_side,
-				this.materials.text_image.override({ color: gold })
-			);
-		}
-		string = ['Speed: ' + this.game.getPlayerSpeed()];
-		multi_line_string = string[0].split('\n');
-
-		// Put it in top right corner below coin count
-		cube_side = camera_transform
-			.times(Mat4.translation(14, 8, -30))
-			.times(Mat4.scale(0.5, 0.5, 0.5));
-
-		let blue = color(39 / 255, 116 / 255, 174 / 255, 1);
-
-		for (let line of multi_line_string.slice(0, 30)) {
-			// Set the string using set_string
-			this.shapes.text.set_string(line, context.context);
-			this.shapes.text.draw(
-				context,
-				program_state,
-				cube_side,
-				this.materials.text_image.override({ color: blue })
-			);
-		}
 	}
 
 	drawPaths(context, program_state) {
@@ -569,23 +607,6 @@ export class BruinRunScene extends Base_Scene {
 
 		if (this.game.gameStarted) {
 			if (!this.game.gameEnded) {
-				this.distances = this.obstacleCenters.map((pos) => {
-					const player_x = this.game.getPlayerCoords()[0];
-					const player_y = this.game.isDucking()
-						? OBSTACLE_Y + 0.1
-						: OVERHEAD_Y + 0.1;
-					const player_z = this.game.getPlayerCoords()[2];
-
-					return [
-						player_x,
-						player_y,
-						player_z,
-						pos[0],
-						pos[1],
-						pos[2],
-					];
-				});
-
 				const playerCoords = this.game.getPlayerCoords();
 				const collide = Object.keys(this.obstacles).some((key) => {
 					const obj = this.obstacles[key];
@@ -607,10 +628,16 @@ export class BruinRunScene extends Base_Scene {
 						playerCoords[2],
 					]);
 				});
-				if (!this.deadCoins.includes(getCoin[0])) {
-					console.log('got coin', getCoin);
+
+				if (!this.deadCoins.includes(getCoin[0]) && Object.keys(getCoin).length !== 0) {
+					// console.log('got coin', getCoin);
 					this.deadCoins.push(getCoin[0]);
+					
+					// getCoin has coin location (z and column) + path it is on
+					this.game.removePathObjects(getCoin[0].split(','))
+
 					this.game.setPlayerCoins(this.game.getPlayerCoins() + 1);
+					this.game.setPlayerSpeed(this.game.getPlayerSpeed() + 0.1);
 				}
 
 				this.drawPlayer(
@@ -624,7 +651,6 @@ export class BruinRunScene extends Base_Scene {
 				this.drawPaths(context, program_state);
 
 				// set camera
-
 				let model_transform = Mat4.identity();
 
 				let [x, y, z] = this.game.getPlayerCoords();
@@ -659,10 +685,10 @@ export class BruinRunScene extends Base_Scene {
 				];
 			} else {
 				// game ended: check if victory or defeat
-				this.gameLostScreen(context, program_state);
+				this.showDefeatScreen(context, program_state);
 			}
 		} else {
-			this.gameStartScreen(context, program_state);
+			this.showStartScreen(context, program_state);
 		}
 	}
 }
