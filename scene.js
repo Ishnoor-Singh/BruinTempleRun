@@ -391,7 +391,6 @@ export class BruinRunScene extends Base_Scene {
 	showLiveText(context, program_state, camera_transform) {
 		// Display coin count
 		let string = ['Coins: ' + this.game.getPlayerCoins()];
-		// , 'Speed: ' + this.game.speed
 		let multi_line_string = string[0].split("\n");
 
 		// Put it in top right corner
@@ -401,10 +400,10 @@ export class BruinRunScene extends Base_Scene {
 		let gold = color(1, 209/255, 0, 1);
 
 		for (let line of multi_line_string.slice(0, 30)) {
-			// Set the string using set_string
 			this.shapes.text.set_string(line, context.context);
 			this.shapes.text.draw(context, program_state, cube_side, this.materials.text_image.override({ color: gold }));
 		}
+		// Display speed (more coins = more speed)
 		string = ['Speed: ' + this.game.getPlayerSpeed()];
 		multi_line_string = string[0].split("\n");
 
@@ -415,7 +414,6 @@ export class BruinRunScene extends Base_Scene {
 		let blue = color(39/255, 116/255, 174/255, 1);
 
 		for (let line of multi_line_string.slice(0, 30)) {
-			// Set the string using set_string
 			this.shapes.text.set_string(line, context.context);
 			this.shapes.text.draw(context, program_state, cube_side, this.materials.text_image.override({ color: blue }));
 		}
