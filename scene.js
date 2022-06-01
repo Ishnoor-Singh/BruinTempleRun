@@ -8,6 +8,7 @@ import {
 	drawObject,
 	drawCorner,
 	calculatePlayerCoords,
+	willIntersect,
 } from './drawUitls.js';
 import { NEG_X, NEG_Z, STRAIGHT_LINE_PATH, TURN, POS_X } from './constants.js';
 
@@ -147,6 +148,9 @@ export class BruinRunScene extends Base_Scene {
 		this.t = 0;
 		this.coinCenters = [];
 		this.obstacleCenters = [];
+		this.coins = {};
+		this.obstacles = {};
+		this.deadCoins = [];
 	}
 
 	make_control_panel() {
@@ -184,7 +188,10 @@ export class BruinRunScene extends Base_Scene {
 
 		// let [x, y, z] = calculatePlayerCoords(playerCoords, direction, column);
 
-		model_transform = model_transform.times(Mat4.translation(...playerCoords));
+		// console.log(x)
+		model_transform = model_transform.times(
+			Mat4.translation(...playerCoords)
+		);
 		const turnAngle = {};
 		turnAngle[NEG_Z] = 0;
 		turnAngle[POS_X] = Math.PI / 2;
@@ -315,6 +322,70 @@ export class BruinRunScene extends Base_Scene {
 			Mat4.translation(column * COLUMN_WIDTH, 0, zDistance)
 		);
 
+		// object:
+		// center: x, y, z
+		// width: x, y, z
+		// bounds: x, y, z
+
+		if (type === COIN) {
+			const obj = {};
+			obj.center = [...model_transform.transposed()][3];
+			const [cx, cy, cz] = [...model_transform.transposed()][3];
+			const [wx, wy, wz] = [1, 3, 1];
+			obj.bounds = {
+				minX: cx - wx,
+				minY: cy - wy,
+				minZ: cz - wz,
+				maxX: cx + wx,
+				maxY: cy + wy,
+				maxZ: cz + wz,
+			};
+			// this.coins.push(obj);
+			this.coins[
+				`${
+					[...initialTransform.transposed()][3]
+				}:${zDistance},${column}`
+			] = obj;
+		} else if (type === OBSTACLE) {
+			const obj = {};
+			obj.center = [...model_transform.transposed()][3];
+			const [cx, cy, cz] = [...model_transform.transposed()][3];
+			const [wx, wy, wz] = [3, 2, 3];
+			obj.bounds = {
+				minX: cx - wx,
+				minY: cy - wy,
+				minZ: cz - wz,
+				maxX: cx + wx,
+				maxY: cy + wy,
+				maxZ: cz + wz,
+			};
+			// this.obstacles.push(obj);
+			this.obstacles[
+				`${
+					[...initialTransform.transposed()][3]
+				}:${zDistance},${column}`
+			] = obj;
+		} else if (type === OVERHEAD) {
+			const obj = {};
+			obj.center = [...model_transform.transposed()][3];
+			let [cx, cy, cz] = [...model_transform.transposed()][3];
+			cy = OVERHEAD_Y;
+			const [wx, wy, wz] = [3, 1, 3];
+			obj.bounds = {
+				minX: cx - wx,
+				minY: cy - wy,
+				minZ: cz - wz,
+				maxX: cx + wx,
+				maxY: cy + wy,
+				maxZ: cz + wz,
+			};
+			// this.obstacles.push(obj);
+			this.obstacles[
+				`${
+					[...initialTransform.transposed()][3]
+				}:${zDistance},${column}`
+			] = obj;
+		}
 		// x, y, Center position
 		// x is LEFT, MIDDLE, RIGHT
 		// y is 0 for ground obstacle, 1.4 for overhead obstacle
@@ -379,9 +450,7 @@ export class BruinRunScene extends Base_Scene {
 	gameStartScreen(context, program_state) {
 		this.baseScreenSetup(context, program_state);
 
-		let strings = [
-			'\t\t\t\t\tBruin Temple Run\n\n\n\t\t\t\t\t\t\t\t\t[S]tart',
-		];
+		let strings = ['\t\t\t\t\tBruin Temple Run\n\n\n\t\t\t\t\t\t\t\t\t[S]tart'];
 		let cube_side = Mat4.translation(-1.8, 0, 1);
 		const multi_line_string = strings[0].split('\n');
 		this.baseDrawText(context, program_state, multi_line_string, cube_side);
@@ -391,31 +460,43 @@ export class BruinRunScene extends Base_Scene {
 	showLiveText(context, program_state, camera_transform) {
 		// Display coin count
 		let string = ['Coins: ' + this.game.getPlayerCoins()];
-		let multi_line_string = string[0].split("\n");
+		let multi_line_string = string[0].split('\n');
 
 		// Put it in top right corner
-		let cube_side = camera_transform.times(Mat4.translation(14, 10, -30))
-										.times(Mat4.scale(0.5,0.5,0.5))
+		let cube_side = camera_transform
+			.times(Mat4.translation(14, 10, -30))
+			.times(Mat4.scale(0.5, 0.5, 0.5));
 
-		let gold = color(1, 209/255, 0, 1);
+		let gold = color(1, 209 / 255, 0, 1);
 
 		for (let line of multi_line_string.slice(0, 30)) {
 			this.shapes.text.set_string(line, context.context);
-			this.shapes.text.draw(context, program_state, cube_side, this.materials.text_image.override({ color: gold }));
+			this.shapes.text.draw(
+				context,
+				program_state,
+				cube_side,
+				this.materials.text_image.override({ color: gold })
+			);
 		}
 		// Display speed (more coins = more speed)
 		string = ['Speed: ' + this.game.getPlayerSpeed()];
-		multi_line_string = string[0].split("\n");
+		multi_line_string = string[0].split('\n');
 
 		// Put it in top right corner below coin count
-		cube_side = camera_transform.times(Mat4.translation(14, 8, -30))
-									.times(Mat4.scale(0.5,0.5,0.5))
+		cube_side = camera_transform
+			.times(Mat4.translation(14, 8, -30))
+			.times(Mat4.scale(0.5, 0.5, 0.5));
 
-		let blue = color(39/255, 116/255, 174/255, 1);
+		let blue = color(39 / 255, 116 / 255, 174 / 255, 1);
 
 		for (let line of multi_line_string.slice(0, 30)) {
 			this.shapes.text.set_string(line, context.context);
-			this.shapes.text.draw(context, program_state, cube_side, this.materials.text_image.override({ color: blue }));
+			this.shapes.text.draw(
+				context,
+				program_state,
+				cube_side,
+				this.materials.text_image.override({ color: blue })
+			);
 		}
 	}
 
@@ -486,7 +567,6 @@ export class BruinRunScene extends Base_Scene {
 
 		if (this.game.gameStarted) {
 			if (!this.game.gameEnded) {
-
 				this.distances = this.obstacleCenters.map((pos) => {
 					const player_x = this.game.getPlayerCoords()[0];
 					const player_y = this.game.isDucking()
@@ -504,26 +584,32 @@ export class BruinRunScene extends Base_Scene {
 					];
 				});
 
-				console.log(this.distances[0])
-				// -z, -x, +x
-				const collide = this.distances.some((d) => {
-					if (this.game.getDirection() == NEG_Z){
-						if (d[0] === d[3] && d[1] > d[4]) {
-							if (d[2] < d[5] + 1 && d[2] > d[5] - 1){
-								console.log(d[0])
-								console.log(d[1])
-								console.log(d[2])
-								console.log(d[3])
-								console.log(d[4])
-								console.log(d[5])
-								return true;
-							}
-						}
-						return false;
-					}
+				const playerCoords = this.game.getPlayerCoords();
+				const collide = Object.keys(this.obstacles).some((key) => {
+					const obj = this.obstacles[key];
+					return willIntersect(obj, [
+						playerCoords[0],
+						this.game.isDucking() ? 0 : 1,
+						playerCoords[2],
+					]);
 				});
 
 				if (collide) this.game.endGame();
+
+				const getCoin = Object.keys(this.coins).filter((key) => {
+					const obj = this.coins[key];
+
+					return willIntersect(obj, [
+						playerCoords[0],
+						this.game.isDucking() ? 0 : 1,
+						playerCoords[2],
+					]);
+				});
+				if (!this.deadCoins.includes(getCoin[0])) {
+					console.log('got coin', getCoin);
+					this.deadCoins.push(getCoin[0]);
+					this.game.setPlayerCoins(this.game.getPlayerCoins() + 1);
+				}
 
 				this.drawPlayer(
 					context,
@@ -556,10 +642,16 @@ export class BruinRunScene extends Base_Scene {
 				program_state.set_camera(desired);
 
 				// show live text by basing it on camera transform
-				this.showLiveText(context, program_state, program_state.camera_transform);
+				this.showLiveText(
+					context,
+					program_state,
+					program_state.camera_transform
+				);
 
 				// setting light on camera
-				const light_position = program_state.camera_transform.times(vec4(0, 0, 0, 1)); 
+				const light_position = program_state.camera_transform.times(
+					vec4(0, 0, 0, 1)
+				);
 				program_state.lights = [
 					new Light(light_position, color(1, 1, 1, 1), 1000),
 				];
@@ -567,8 +659,7 @@ export class BruinRunScene extends Base_Scene {
 				// game ended: check if victory or defeat
 				this.gameLostScreen(context, program_state);
 			}
-		}
-		else {
+		} else {
 			this.gameStartScreen(context, program_state);
 		}
 	}
