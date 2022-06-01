@@ -171,6 +171,11 @@ export class BruinRunScene extends Base_Scene {
 		});
 		this.key_triggered_button('Restart', ['r'], () => {
 			this.game.restartGame();
+			this.coinCenters = [];
+			this.obstacleCenters = [];
+			this.coins = {};
+			this.obstacles = {};
+			this.deadCoins = [];
 		});
 		this.key_triggered_button('Start', ['s'], () => {
 			this.game.startGame();
@@ -186,9 +191,6 @@ export class BruinRunScene extends Base_Scene {
 	drawPlayer(context, program_state, column, direction, type, playerCoords) {
 		let model_transform = Mat4.identity();
 
-		// let [x, y, z] = calculatePlayerCoords(playerCoords, direction, column);
-
-		// console.log(x)
 		model_transform = model_transform.times(
 			Mat4.translation(...playerCoords)
 		);
@@ -605,7 +607,8 @@ export class BruinRunScene extends Base_Scene {
 						playerCoords[2],
 					]);
 				});
-				if (!this.deadCoins.includes(getCoin[0])) {
+				
+				if (!this.deadCoins.includes(getCoin[0]) && Object.keys(getCoin).length !== 0) {
 					console.log('got coin', getCoin);
 					this.deadCoins.push(getCoin[0]);
 					this.game.setPlayerCoins(this.game.getPlayerCoins() + 1);
@@ -622,7 +625,6 @@ export class BruinRunScene extends Base_Scene {
 				this.drawPaths(context, program_state);
 
 				// set camera
-
 				let model_transform = Mat4.identity();
 
 				let [x, y, z] = this.game.getPlayerCoords();

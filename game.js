@@ -12,7 +12,7 @@ const MIDDLE = 0;
 const RIGHT = 1;
 
 const COLUMN_WIDTH = 6;
-const SPEED = 15;
+const SPEED = 10;
 
 const INITIAL_GAME_STATE = {
 	playerZDistance: 0,
