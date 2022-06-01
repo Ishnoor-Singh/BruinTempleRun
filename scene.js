@@ -311,7 +311,7 @@ export class BruinRunScene extends Base_Scene {
 	}
 
 	// From text-demo.js
-	baseScreenSetup(context, program_state) {
+	screenSetup(context, program_state) {
 		program_state.lights = [
 			new Light(vec4(0, 1, 1, 0), color(1, 1, 1, 1), 1000000),
 		];
@@ -328,22 +328,8 @@ export class BruinRunScene extends Base_Scene {
 		);
 	}
 
-	// Draws text onto cube side given strings (like in text-demo.js)
-	baseDrawText(context, program_state, multi_line_string, cube_side, color) {
-		for (let line of multi_line_string.slice(0, 30)) {
-			this.shapes.text.set_string(line, context.context);
-			this.shapes.text.draw(
-				context,
-				program_state,
-				cube_side.times(Mat4.scale(0.1, 0.1, 0.1)),
-				this.materials.text_image.override({ color: color })
-			);
-			cube_side.post_multiply(Mat4.translation(0, -0.06, 0));
-		}
-	}
-
-	gameLostScreen(context, program_state) {
-		this.baseScreenSetup(context, program_state);
+	showDefeatScreen(context, program_state) {
+		this.screenSetup(context, program_state);
 		let gold = color(1, 209 / 255, 0, 1);
 		let blue = color(39 / 255, 116 / 255, 174 / 255, 1);
 		let strings = ['Game Over'];
@@ -372,8 +358,8 @@ export class BruinRunScene extends Base_Scene {
 		}
 	}
 
-	gameStartScreen(context, program_state) {
-		this.baseScreenSetup(context, program_state);
+	showStartScreen(context, program_state) {
+		this.screenSetup(context, program_state);
 		let gold = color(1, 209 / 255, 0, 1);
 		let blue = color(39 / 255, 116 / 255, 174 / 255, 1);
 		let strings = ['Bruin Temple Run'];
@@ -389,6 +375,36 @@ export class BruinRunScene extends Base_Scene {
 			);
 		}
 		strings = ['[S]tart'];
+		cube_side = Mat4.translation(-0.5, -0.12, 1);
+		multi_line_string = strings[0].split('\n');
+		for (let line of multi_line_string.slice(0, 30)) {
+			this.shapes.text.set_string(line, context.context);
+			this.shapes.text.draw(
+				context,
+				program_state,
+				cube_side.times(Mat4.scale(0.1, 0.1, 0.1)),
+				this.materials.text_image.override({ color: blue })
+			);
+		}
+	}
+
+	showVictoryScreen(context, program_state) {
+		this.screenSetup(context, program_state);
+		let gold = color(1, 209 / 255, 0, 1);
+		let blue = color(39 / 255, 116 / 255, 174 / 255, 1);
+		let strings = ['You won!'];
+		let cube_side = Mat4.translation(-1.07, 0.12, 1);
+		let multi_line_string = strings[0].split('\n');
+		for (let line of multi_line_string.slice(0, 30)) {
+			this.shapes.text.set_string(line, context.context);
+			this.shapes.text.draw(
+				context,
+				program_state,
+				cube_side.times(Mat4.scale(0.1, 0.1, 0.1)),
+				this.materials.text_image.override({ color: gold })
+			);
+		}
+		strings = ['[R]estart'];
 		cube_side = Mat4.translation(-0.5, -0.12, 1);
 		multi_line_string = strings[0].split('\n');
 		for (let line of multi_line_string.slice(0, 30)) {
@@ -669,10 +685,10 @@ export class BruinRunScene extends Base_Scene {
 				];
 			} else {
 				// game ended: check if victory or defeat
-				this.gameLostScreen(context, program_state);
+				this.showDefeatScreen(context, program_state);
 			}
 		} else {
-			this.gameStartScreen(context, program_state);
+			this.showStartScreen(context, program_state);
 		}
 	}
 }
