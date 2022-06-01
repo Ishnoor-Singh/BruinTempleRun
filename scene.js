@@ -329,14 +329,14 @@ export class BruinRunScene extends Base_Scene {
 	}
 
 	// Draws text onto cube side given strings (like in text-demo.js)
-	baseDrawText(context, program_state, multi_line_string, cube_side) {
+	baseDrawText(context, program_state, multi_line_string, cube_side, color) {
 		for (let line of multi_line_string.slice(0, 30)) {
 			this.shapes.text.set_string(line, context.context);
 			this.shapes.text.draw(
 				context,
 				program_state,
 				cube_side.times(Mat4.scale(0.1, 0.1, 0.1)),
-				this.materials.text_image
+				this.materials.text_image.override({ color: color })
 			);
 			cube_side.post_multiply(Mat4.translation(0, -0.06, 0));
 		}
@@ -344,22 +344,62 @@ export class BruinRunScene extends Base_Scene {
 
 	gameLostScreen(context, program_state) {
 		this.baseScreenSetup(context, program_state);
-
-		let strings = [
-			'\t\t\t\t\t\t\t\tGame Over \n\n\n\t\t\t\t\t\t\t\t[R]estart',
-		];
-		let cube_side = Mat4.translation(-1.8, 0, 1);
-		const multi_line_string = strings[0].split('\n');
-		this.baseDrawText(context, program_state, multi_line_string, cube_side);
+		let gold = color(1, 209 / 255, 0, 1);
+		let blue = color(39 / 255, 116 / 255, 174 / 255, 1);
+		let strings = ['Game Over'];
+		let cube_side = Mat4.translation(-0.6, 0, 1);
+		let multi_line_string = strings[0].split('\n');
+		for (let line of multi_line_string.slice(0, 30)) {
+			this.shapes.text.set_string(line, context.context);
+			this.shapes.text.draw(
+				context,
+				program_state,
+				cube_side.times(Mat4.scale(0.1, 0.1, 0.1)),
+				this.materials.text_image.override({ color: blue })
+			);
+		}
+		strings = ['[R]estart'];
+		cube_side = Mat4.translation(-0.6, -0.25, 1);
+		multi_line_string = strings[0].split('\n');
+		for (let line of multi_line_string.slice(0, 30)) {
+			this.shapes.text.set_string(line, context.context);
+			this.shapes.text.draw(
+				context,
+				program_state,
+				cube_side.times(Mat4.scale(0.1, 0.1, 0.1)),
+				this.materials.text_image.override({ color: gold })
+			);
+		}
 	}
 
 	gameStartScreen(context, program_state) {
 		this.baseScreenSetup(context, program_state);
-
-		let strings = ['\t\t\t\t\tBruin Temple Run\n\n\n\t\t\t\t\t\t\t\t\t[S]tart'];
-		let cube_side = Mat4.translation(-1.8, 0, 1);
-		const multi_line_string = strings[0].split('\n');
-		this.baseDrawText(context, program_state, multi_line_string, cube_side);
+		let gold = color(1, 209 / 255, 0, 1);
+		let blue = color(39 / 255, 116 / 255, 174 / 255, 1);
+		let strings = ['Bruin Temple Run'];
+		let cube_side = Mat4.translation(-1.07, 0.12, 1);
+		let multi_line_string = strings[0].split('\n');
+		for (let line of multi_line_string.slice(0, 30)) {
+			this.shapes.text.set_string(line, context.context);
+			this.shapes.text.draw(
+				context,
+				program_state,
+				cube_side.times(Mat4.scale(0.1, 0.1, 0.1)),
+				this.materials.text_image.override({ color: gold })
+			);
+		}
+		strings = ['[S]tart'];
+		cube_side = Mat4.translation(-0.5, -0.12, 1);
+		multi_line_string = strings[0].split('\n');
+		for (let line of multi_line_string.slice(0, 30)) {
+			this.shapes.text.set_string(line, context.context);
+			this.shapes.text.draw(
+				context,
+				program_state,
+				cube_side.times(Mat4.scale(0.1, 0.1, 0.1)),
+				this.materials.text_image.override({ color: blue })
+			);
+		}
 	}
 
 	// Shows live text on game screen
@@ -565,7 +605,6 @@ export class BruinRunScene extends Base_Scene {
 
 				const getCoin = Object.keys(this.coins).filter((key) => {
 					const obj = this.coins[key];
-					// console.log(key)
 
 					return willIntersect(obj, [
 						playerCoords[0],
@@ -575,18 +614,16 @@ export class BruinRunScene extends Base_Scene {
 				});
 
 				if (!this.deadCoins.includes(getCoin[0]) && Object.keys(getCoin).length !== 0) {
-					console.log('got coin', getCoin);
+					// console.log('got coin', getCoin);
 					this.deadCoins.push(getCoin[0]);
 					
-					// the key has coin location (z and column) + path it is on
+					// getCoin has coin location (z and column) + path it is on
 					this.game.removePathObjects(getCoin[0].split(','))
 
 					this.game.setPlayerCoins(this.game.getPlayerCoins() + 1);
 					this.game.setPlayerSpeed(this.game.getPlayerSpeed() + 0.1);
 				}
 
-
-				// console.log(this.game.getPaths()[0].objects[0])
 				this.drawPlayer(
 					context,
 					program_state,
