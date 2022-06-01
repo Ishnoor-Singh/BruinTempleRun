@@ -310,102 +310,6 @@ export class BruinRunScene extends Base_Scene {
 		return model_transform;
 	}
 
-	setUpCenters(
-		context,
-		program_state,
-		column,
-		zDistance,
-		type,
-		initialTransform
-	) {
-		let model_transform = initialTransform;
-
-		model_transform = model_transform.times(
-			Mat4.translation(column * COLUMN_WIDTH, 0, zDistance)
-		);
-
-		// object:
-		// center: x, y, z
-		// width: x, y, z
-		// bounds: x, y, z
-
-		if (type === COIN) {
-			const obj = {};
-			obj.center = [...model_transform.transposed()][3];
-			const [cx, cy, cz] = [...model_transform.transposed()][3];
-			const [wx, wy, wz] = [1, 3, 1];
-			obj.bounds = {
-				minX: cx - wx,
-				minY: cy - wy,
-				minZ: cz - wz,
-				maxX: cx + wx,
-				maxY: cy + wy,
-				maxZ: cz + wz,
-			};
-			// this.coins.push(obj);
-			this.coins[
-				`${
-					[...initialTransform.transposed()][3]
-				}:${zDistance},${column}`
-			] = obj;
-		} else if (type === OBSTACLE) {
-			const obj = {};
-			obj.center = [...model_transform.transposed()][3];
-			const [cx, cy, cz] = [...model_transform.transposed()][3];
-			const [wx, wy, wz] = [3, 2, 3];
-			obj.bounds = {
-				minX: cx - wx,
-				minY: cy - wy,
-				minZ: cz - wz,
-				maxX: cx + wx,
-				maxY: cy + wy,
-				maxZ: cz + wz,
-			};
-			// this.obstacles.push(obj);
-			this.obstacles[
-				`${
-					[...initialTransform.transposed()][3]
-				}:${zDistance},${column}`
-			] = obj;
-		} else if (type === OVERHEAD) {
-			const obj = {};
-			obj.center = [...model_transform.transposed()][3];
-			let [cx, cy, cz] = [...model_transform.transposed()][3];
-			cy = OVERHEAD_Y;
-			const [wx, wy, wz] = [3, 1, 3];
-			obj.bounds = {
-				minX: cx - wx,
-				minY: cy - wy,
-				minZ: cz - wz,
-				maxX: cx + wx,
-				maxY: cy + wy,
-				maxZ: cz + wz,
-			};
-			// this.obstacles.push(obj);
-			this.obstacles[
-				`${
-					[...initialTransform.transposed()][3]
-				}:${zDistance},${column}`
-			] = obj;
-		}
-		// x, y, Center position
-		// x is LEFT, MIDDLE, RIGHT
-		// y is 0 for ground obstacle, 1.4 for overhead obstacle
-		// in array, object z is index 4
-		type === COIN
-			? this.coinCenters.push([
-					[...model_transform.transposed()][3][0],
-					0,
-					[...model_transform.transposed()][3][2],
-			  ])
-			: this.obstacleCenters.push([
-					[...model_transform.transposed()][3][0],
-					type === OVERHEAD ? OVERHEAD_Y : OBSTACLE_Y,
-					[...model_transform.transposed()][3][2],
-			  ]);
-		return model_transform;
-	}
-
 	// From text-demo.js
 	baseScreenSetup(context, program_state) {
 		program_state.lights = [
@@ -481,7 +385,7 @@ export class BruinRunScene extends Base_Scene {
 			);
 		}
 		// Display speed (more coins = more speed)
-		string = ['Speed: ' + this.game.getPlayerSpeed()];
+		string = ['Speed: ' + this.game.getPlayerSpeed().toFixed(1)];
 		multi_line_string = string[0].split('\n');
 
 		// Put it in top right corner below coin count
@@ -500,6 +404,84 @@ export class BruinRunScene extends Base_Scene {
 				this.materials.text_image.override({ color: blue })
 			);
 		}
+	}
+
+	setUpCenters(
+		context,
+		program_state,
+		column,
+		zDistance,
+		type,
+		initialTransform
+	) {
+		let model_transform = initialTransform;
+
+		model_transform = model_transform.times(
+			Mat4.translation(column * COLUMN_WIDTH, 0, zDistance)
+		);
+
+		// object:
+		// center: x, y, z
+		// width: x, y, z
+		// bounds: x, y, z
+
+		if (type === COIN) {
+			const obj = {};
+			obj.center = [...model_transform.transposed()][3];
+			const [cx, cy, cz] = [...model_transform.transposed()][3];
+			const [wx, wy, wz] = [1.5, 3, 1.5];
+			obj.bounds = {
+				minX: cx - wx,
+				minY: cy - wy,
+				minZ: cz - wz,
+				maxX: cx + wx,
+				maxY: cy + wy,
+				maxZ: cz + wz,
+			};
+			this.coins[
+				`${
+					[...initialTransform.transposed()][3]
+				},${zDistance},${column}`
+			] = obj;
+		} else if (type === OBSTACLE) {
+			const obj = {};
+			obj.center = [...model_transform.transposed()][3];
+			const [cx, cy, cz] = [...model_transform.transposed()][3];
+			const [wx, wy, wz] = [3, 2, 3];
+			obj.bounds = {
+				minX: cx - wx,
+				minY: cy - wy,
+				minZ: cz - wz,
+				maxX: cx + wx,
+				maxY: cy + wy,
+				maxZ: cz + wz,
+			};
+			this.obstacles[
+				`${
+					[...initialTransform.transposed()][3]
+				},${zDistance},${column}`
+			] = obj;
+		} else if (type === OVERHEAD) {
+			const obj = {};
+			obj.center = [...model_transform.transposed()][3];
+			let [cx, cy, cz] = [...model_transform.transposed()][3];
+			cy = OVERHEAD_Y;
+			const [wx, wy, wz] = [3, 1, 3];
+			obj.bounds = {
+				minX: cx - wx,
+				minY: cy - wy,
+				minZ: cz - wz,
+				maxX: cx + wx,
+				maxY: cy + wy,
+				maxZ: cz + wz,
+			};
+			this.obstacles[
+				`${
+					[...initialTransform.transposed()][3]
+				},${zDistance},${column}`
+			] = obj;
+		}
+		return model_transform;
 	}
 
 	drawPaths(context, program_state) {
@@ -569,23 +551,6 @@ export class BruinRunScene extends Base_Scene {
 
 		if (this.game.gameStarted) {
 			if (!this.game.gameEnded) {
-				this.distances = this.obstacleCenters.map((pos) => {
-					const player_x = this.game.getPlayerCoords()[0];
-					const player_y = this.game.isDucking()
-						? OBSTACLE_Y + 0.1
-						: OVERHEAD_Y + 0.1;
-					const player_z = this.game.getPlayerCoords()[2];
-
-					return [
-						player_x,
-						player_y,
-						player_z,
-						pos[0],
-						pos[1],
-						pos[2],
-					];
-				});
-
 				const playerCoords = this.game.getPlayerCoords();
 				const collide = Object.keys(this.obstacles).some((key) => {
 					const obj = this.obstacles[key];
@@ -600,6 +565,7 @@ export class BruinRunScene extends Base_Scene {
 
 				const getCoin = Object.keys(this.coins).filter((key) => {
 					const obj = this.coins[key];
+					// console.log(key)
 
 					return willIntersect(obj, [
 						playerCoords[0],
@@ -607,13 +573,20 @@ export class BruinRunScene extends Base_Scene {
 						playerCoords[2],
 					]);
 				});
-				
+
 				if (!this.deadCoins.includes(getCoin[0]) && Object.keys(getCoin).length !== 0) {
 					console.log('got coin', getCoin);
 					this.deadCoins.push(getCoin[0]);
+					
+					// the key has coin location (z and column) + path it is on
+					this.game.removePathObjects(getCoin[0].split(','))
+
 					this.game.setPlayerCoins(this.game.getPlayerCoins() + 1);
+					this.game.setPlayerSpeed(this.game.getPlayerSpeed() + 0.1);
 				}
 
+
+				// console.log(this.game.getPaths()[0].objects[0])
 				this.drawPlayer(
 					context,
 					program_state,

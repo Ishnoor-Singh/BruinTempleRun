@@ -12,15 +12,13 @@ const MIDDLE = 0;
 const RIGHT = 1;
 
 const COLUMN_WIDTH = 6;
-const SPEED = 10;
+const INITIAL_SPEED = 10;
 
 const INITIAL_GAME_STATE = {
 	playerZDistance: 0,
 	playerColumn: MIDDLE,
 	timeElapsed: 0,
 	duck: false,
-	// direction: NEG_X,
-	// playerCoords: [-12, 0, -212],
 	direction: NEG_Z,
 	playerCoords: [0, 0, 0],
 	coins: 0,
@@ -286,7 +284,7 @@ export class BruinTempleRun {
 		const paths = new Paths(p);
 		this.paths = paths.getPaths();
 		this.paused = true;
-		this.speed = SPEED;
+		this.speed = INITIAL_SPEED;
 		this.gameStarted = false;
 		this.gameEnded = false;
 	}
@@ -392,10 +390,22 @@ export class BruinTempleRun {
 
 	restartGame() {
 		this.setStateToInitial();
+		this.speed = INITIAL_SPEED;
 		if (this.gameEnded) {
 			this.gameEnded = false;
 			this.paused = true;
 		}
+		const p = [
+			new StraightLinePath(objects, 100, NEG_Z),
+			new Turn(NEG_Z, LEFT),
+			new StraightLinePath(objects, 100, NEG_X),
+			// new StraightLinePath(objects, 100, NEG_Z, [0, 0, 0]),
+			// new Turn(RIGHT, [0, 0, 0]),
+			// new StraightLinePath(objects, 100, NEG_X),
+		];
+		const paths = new Paths(p);
+		this.paths = paths.getPaths();
+
 	}
 
 	getPlayerColumn() {
@@ -431,6 +441,22 @@ export class BruinTempleRun {
 		return this.paths;
 	}
 
+	removePathObjects(key) {
+		// key: indices 0-2 are xyz of path's initial transform (use to find which path the object is on)
+		// 4 is z location, 5 is column (used to find unique coin on path given location and column)
+		let l = this.getPaths().length;
+		for (let i = 0; i < l; i++) {
+			let pathCoords = this.getPaths()[i].getInitialCoords();
+			if (pathCoords[0] === parseInt(key[0]) && pathCoords[1] === parseInt(key[1]) && pathCoords[2] === parseInt(key[2])) {
+				this.getPaths()[i].setObjects(this.getPaths()[i].getObjects().filter(object => {
+					if (object.type === COIN && object.z === parseInt(key[4]) && object.column === parseInt(key[5]))
+						return false;
+					else return true;
+				}))
+			}
+		}
+	}
+
 	getDirection() {
 		return this.state.direction;
 	}
@@ -455,6 +481,7 @@ export class BruinTempleRun {
 		this.speed = amount;
 	}
 }
+
 class SubPath {
 	constructor(startPoint = [0, 0, 0], axis, length) {
 		this.length = length;
@@ -541,10 +568,23 @@ class Paths {
 class StraightLinePath extends SubPath {
 	constructor(objects, length, axis, startPoint = [0, 0, 0]) {
 		super(startPoint, axis, length);
+		this.allobjects = objects;
 		this.objects = objects;
 		this.type = STRAIGHT_LINE_PATH;
 		this.length = length;
 		this.axis = axis;
+	}
+
+	getObjects() {
+		return this.objects;
+	}
+
+	setObjects(objs){
+		this.objects = objs;
+	}
+
+	getAllObjects() {
+		return this.allobjects;
 	}
 }
 
