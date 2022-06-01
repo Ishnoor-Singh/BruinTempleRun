@@ -190,3 +190,16 @@ export function drawCorner(
 	}
 	return model_transform;
 }
+
+export function willIntersect(object, coords) {
+	if (
+		coords[0] > object.bounds.minX &&
+		coords[0] < object.bounds.maxX &&
+		coords[1] > object.bounds.minY &&
+		coords[1] < object.bounds.maxY &&
+		coords[2] > object.bounds.minZ &&
+		coords[2] < object.bounds.maxZ
+	) {
+		return true;
+	} else return false;
+}
