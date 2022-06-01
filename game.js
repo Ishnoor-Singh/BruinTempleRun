@@ -1,5 +1,5 @@
 import { tiny } from './examples/common.js';
-import { NEG_X, NEG_Z, STRAIGHT_LINE_PATH, TURN, POS_X, LEFT, MIDDLE, RIGHT, COIN, OBSTACLE, OVERHEAD, OVERHEAD_WITH_COIN } from './constants.js';
+import { NEG_X, NEG_Z, STRAIGHT_LINE_PATH, TURN, POS_X, LEFT, MIDDLE, RIGHT, COIN, OBSTACLE, OVERHEAD, OVERHEAD_WITH_COIN, NONE } from './constants.js';
 import { makeObstacle } from './obstacles.js';
 const { Mat4 } = tiny;
 

@@ -1,4 +1,4 @@
-import {LEFT, MIDDLE, RIGHT, COIN, OVERHEAD, OVERHEAD_WITH_COIN} from './constants.js';
+import {LEFT, MIDDLE, RIGHT, COIN, OVERHEAD, OVERHEAD_WITH_COIN, NONE} from './constants.js';
 
 export function makeObstacle(leftType, middleType, rightType, position) {
 
@@ -8,8 +8,11 @@ export function makeObstacle(leftType, middleType, rightType, position) {
         if (object === OVERHEAD_WITH_COIN) {
             return [formObstacle(OVERHEAD, position, index), formObstacle(COIN, position, index)]
         }
-
-        return formObstacle(object, position, index)
+        else if (object === NONE) {
+            return {}
+        } else {
+            return formObstacle(object, position, index)
+        }
     });
 
     return Array.prototype.concat.apply([], newObjects);
