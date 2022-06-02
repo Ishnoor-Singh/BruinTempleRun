@@ -180,11 +180,17 @@ export class BruinRunScene extends Base_Scene {
 		this.key_triggered_button('Start', ['s'], () => {
 			this.game.startGame();
 		});
-		this.key_triggered_button('Down', ['k'], () => {
-			this.game.toggleDuck();
-			// setTimeout(() => {
-			// 	this.game.toggleDuck();
-			// }, 2000);
+		this.key_triggered_button('Duck', ['k'], () => {
+			if (!this.game.isDucking()) {
+				this.game.setDuck(true);
+				timeout = setTimeout(() => {
+					this.game.setDuck(false);
+				}, 1500);
+			}
+			else {
+				this.game.setDuck(false);
+				clearTimeout(timeout)
+			}
 		});
 	}
 
@@ -639,7 +645,7 @@ export class BruinRunScene extends Base_Scene {
 					this.deadCoins.push(getCoin[0]);
 
 					// getCoin has coin location (z and column) + path it is on
-					this.game.removePathObjects(getCoin[0].split(','));
+					this.game.removePathCoins(getCoin[0].split(','));
 
 					this.game.setPlayerCoins(this.game.getPlayerCoins() + 1);
 					this.game.setPlayerSpeed(this.game.getPlayerSpeed() + 0.1);

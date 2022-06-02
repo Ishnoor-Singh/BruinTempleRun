@@ -183,8 +183,8 @@ export class BruinTempleRun {
 		return this.paused;
 	}
 
-	toggleDuck() {
-		this.state.duck = !this.state.duck;
+	setDuck(d) {
+		this.state.duck = d;
 	}
 
 	isDucking() {
@@ -200,7 +200,7 @@ export class BruinTempleRun {
 		return this.paths;
 	}
 
-	removePathObjects(key) {
+	removePathCoins(key) {
 		// key: indices 0-2 are xyz of path's initial transform (use to find which path the object is on)
 		// 4 is z location, 5 is column (used to find unique coin on path given location and column)
 		let l = this.getPaths().length;
