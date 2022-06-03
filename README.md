@@ -23,17 +23,17 @@ If the player reaches the tresure chests, the game is over and the player wins; 
 Then, open your browser and go to `http://localhost:8000`
 
 ### Playing the game
-- Press s to start
-- To slide left/right: keys 'j', 'l'
-- To duck/unduck: key 'k'
-- To turn left/right: keys 'Control+j', 'Control+l'
-- To pause, restart: keys 'p', 'r'
+- Press 's' to start
+- To slide left/right: 'j', 'l'
+- To duck/unduck: 'k'
+- To turn left/right: 'Control+j', 'Control+l'
+- To pause, restart: 'p', 'r'
 - On the top right of the screen, the player's coin count and speed are displayed
 - To collect coins and increase your speed, collect coins
-- Do not run into any brick walls, as you will lose the game
+- Do not run into any brick walls, or you will lose the game
 - Run into the treasure chests to win the game
 
 ### Advanced feature: collision detection
 To check if the player runs into an object (side wall, ground obstacle, overhead obstacle), we implement collision detection.
-To implement collision detection, we track the coordinates of the player and the centers and dimensions (widths) of the coins and obstacles in dictionaries. Each coin and obstacle have a key in these dictionaries; the key is the model transform of the path they are on and the distance and column location on the path.
-For each object, we check if the player's coordinates are within the bounds of the object, which are tracked by the object's centers and dimensions. If the player is within any object, we find which object the player is colliding with using the key. This is important for the coins, as we make them disappear if they are collected, and the right coin needs to disappear when it is collected.
+To implement collision detection, we track the coordinates of the player and the centers and dimensions (widths) of the coins and obstacles in dictionaries. Each coin and obstacle have a key in these dictionaries; the key is the model transform of the path they are on and the distance and column location on the path. For each object, we check if the player's coordinates are within the bounds of the object, which are tracked by the object's centers and dimensions. <br> 
+If the player is within any object, we find which object the player is colliding with using the key. This is important for the coins, as we make them disappear if they are collected, and the right coin needs to disappear when it is collected.
