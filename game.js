@@ -1,5 +1,5 @@
 import { tiny } from './examples/common.js';
-import { NEG_X, NEG_Z, STRAIGHT_LINE_PATH, TURN, POS_X, LEFT, MIDDLE, RIGHT, COIN, OBSTACLE, OVERHEAD, OVERHEAD_WITH_COIN } from './constants.js';
+import { POS_X, POS_Z, NEG_X, NEG_Z, STRAIGHT_LINE_PATH, TURN, LEFT, MIDDLE, RIGHT, COIN, OBSTACLE, OVERHEAD, OVERHEAD_WITH_COIN, FINISH, NONE } from './constants.js';
 import { makeObstacle } from './obstacles.js';
 const { Mat4 } = tiny;
 
@@ -16,36 +16,55 @@ const INITIAL_GAME_STATE = {
 	coins: 0,
 };
 
-const objects = Array.prototype.concat.apply([], [
+const objectsPath1 = Array.prototype.concat.apply([], [
 	makeObstacle(COIN, COIN, COIN, -10),
 	makeObstacle(COIN, OBSTACLE, OBSTACLE, -30),
 	makeObstacle(OBSTACLE, OBSTACLE, COIN, -50),
 	makeObstacle(OBSTACLE, COIN, OBSTACLE, -70),
-	makeObstacle(OVERHEAD, OVERHEAD_WITH_COIN, OVERHEAD, -90),
-	makeObstacle(COIN, OBSTACLE, COIN, -110),
+	makeObstacle(OVERHEAD_WITH_COIN, OBSTACLE, OVERHEAD_WITH_COIN, -90),
+	makeObstacle(OBSTACLE, COIN, OBSTACLE, -110),
 	makeObstacle(OVERHEAD_WITH_COIN, OBSTACLE, OBSTACLE, -130),
 	makeObstacle(OBSTACLE, COIN, OBSTACLE, -150),
 	makeObstacle(COIN, OBSTACLE, OVERHEAD_WITH_COIN, -170),
 	makeObstacle(OVERHEAD_WITH_COIN, OVERHEAD_WITH_COIN, OVERHEAD_WITH_COIN, -190)
 ]);
 
+const objectsPath2 = Array.prototype.concat.apply([], [
+	makeObstacle(OBSTACLE, COIN, OBSTACLE, -10),
+	makeObstacle(OVERHEAD_WITH_COIN, OBSTACLE, OVERHEAD_WITH_COIN, -30),
+	makeObstacle(COIN, OBSTACLE, OBSTACLE, -50),
+	makeObstacle(OBSTACLE, OBSTACLE, COIN, -70),
+	makeObstacle(OBSTACLE, OVERHEAD_WITH_COIN, OVERHEAD_WITH_COIN, -90),
+	makeObstacle(OBSTACLE, OVERHEAD, OBSTACLE, -110),
+	makeObstacle(COIN, OBSTACLE, COIN, -130),
+	makeObstacle(OVERHEAD_WITH_COIN, COIN, OVERHEAD_WITH_COIN, -150),
+	makeObstacle(COIN, NONE, COIN, -170),
+	makeObstacle(FINISH, FINISH, FINISH, -190),	
+]);
+
 export class BruinTempleRun {
 	constructor() {
 		this.setStateToInitial();
 		const p = [
-			new StraightLinePath(objects, 100, NEG_Z),
+			new StraightLinePath(objectsPath1, 100, NEG_Z),
 			new Turn(NEG_Z, LEFT),
-			new StraightLinePath(objects, 100, NEG_X),
-			// new StraightLinePath(objects, 100, NEG_Z, [0, 0, 0]),
-			// new Turn(RIGHT, [0, 0, 0]),
-			// new StraightLinePath(objects, 100, NEG_X),
+			new StraightLinePath(objectsPath2, 100, NEG_X)
+			
+			//multiple turns attempt
+			// new StraightLinePath([], 25, NEG_Z),
+			// new Turn(NEG_Z, LEFT),
+			// new StraightLinePath([], 25, NEG_X),
+			// new Turn(NEG_X, RIGHT)
 		];
 		const paths = new Paths(p);
 		this.paths = paths.getPaths();
 		this.paused = true;
 		this.speed = INITIAL_SPEED;
 		this.gameStarted = false;
-		this.gameEnded = false;
+		this.gameEnded = {
+			end: false,
+			outcome: ""
+		};
 	}
 
 	setStateToInitial() {
@@ -151,16 +170,17 @@ export class BruinTempleRun {
 		this.setStateToInitial();
 		this.speed = INITIAL_SPEED;
 		if (this.gameEnded) {
-			this.gameEnded = false;
+			this.gameEnded = {
+				end: false,
+				outcome: ""
+			};
 			this.paused = true;
 		}
 		const p = [
-			new StraightLinePath(objects, 100, NEG_Z),
+			new StraightLinePath(objectsPath1, 100, NEG_Z),
 			new Turn(NEG_Z, LEFT),
-			new StraightLinePath(objects, 100, NEG_X),
-			// new StraightLinePath(objects, 100, NEG_Z, [0, 0, 0]),
-			// new Turn(RIGHT, [0, 0, 0]),
-			// new StraightLinePath(objects, 100, NEG_X),
+			new StraightLinePath(objectsPath2, 100, NEG_X)
+			//new Turn(NEG_X, RIGHT)
 		];
 		const paths = new Paths(p);
 		this.paths = paths.getPaths();
@@ -190,8 +210,11 @@ export class BruinTempleRun {
 	isDucking() {
 		return this.state.duck;
 	}
-	endGame() {
-		this.gameEnded = true;
+	endGame(state) {
+		this.gameEnded = {
+			end: true,
+			outcome: state
+		};
 	}
 	startGame() {
 		this.gameStarted = true;
@@ -311,7 +334,7 @@ class Paths {
 				} else if (path.axis === POS_X) {
 					x += path.length * unitLength;
 					if (path.turnDirection === LEFT) {
-						z += (width * unitLength) / 2;
+						z -= (width * unitLength) / 2;
 					} else {
 						z += (width * unitLength) / 2;
 					}
