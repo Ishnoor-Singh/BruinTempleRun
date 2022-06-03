@@ -396,7 +396,7 @@ export class BruinRunScene extends Base_Scene {
 		let gold = color(1, 209 / 255, 0, 1);
 		let blue = color(39 / 255, 116 / 255, 174 / 255, 1);
 		let strings = ['You won!'];
-		let cube_side = Mat4.translation(-1.07, 0.12, 1);
+		let cube_side = Mat4.translation(-0.4, 0.12, 1);
 		let multi_line_string = strings[0].split('\n');
 		for (let line of multi_line_string.slice(0, 30)) {
 			this.shapes.text.set_string(line, context.context);
