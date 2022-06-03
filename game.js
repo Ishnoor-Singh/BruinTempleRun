@@ -46,15 +46,15 @@ export class BruinTempleRun {
 	constructor() {
 		this.setStateToInitial();
 		const p = [
-			new StraightLinePath(objectsPath1, 100, NEG_Z),
-			new Turn(NEG_Z, LEFT),
-			new StraightLinePath(objectsPath2, 100, NEG_X)
+			// new StraightLinePath(objectsPath1, 100, NEG_Z),
+			// new Turn(NEG_Z, LEFT),
+			// new StraightLinePath(objectsPath2, 100, NEG_X)
 			
 			//multiple turns attempt
-			// new StraightLinePath([], 25, NEG_Z),
-			// new Turn(NEG_Z, LEFT),
-			// new StraightLinePath([], 25, NEG_X),
-			// new Turn(NEG_X, RIGHT)
+			new StraightLinePath([], 25, NEG_Z),
+			new Turn(NEG_Z, RIGHT),
+			new StraightLinePath([], 25, POS_X),
+			new Turn(POS_X, LEFT)
 		];
 		const paths = new Paths(p);
 		this.paths = paths.getPaths();
@@ -311,9 +311,9 @@ class Paths {
 				if (path.axis === NEG_Z) {
 					z -= path.length * unitLength;
 				} else if (path.axis === NEG_X) {
-					x -= path.length * unitLength;
-				} else if (path.axis === POS_X) {
 					x += path.length * unitLength;
+				} else if (path.axis === POS_X) {
+					x -= path.length * unitLength;
 				}
 			} else if (path.type === TURN) {
 				path.startPoint = [x, y, z];
@@ -325,14 +325,14 @@ class Paths {
 						x -= (width * unitLength) / 2;
 					}
 				} else if (path.axis === NEG_X) {
-					x -= path.length * unitLength;
+					x += (path.length / 2) * unitLength;
 					if (path.turnDirection === LEFT) {
 						z -= (width * unitLength) / 2;
 					} else {
 						z += (width * unitLength) / 2;
 					}
 				} else if (path.axis === POS_X) {
-					x += path.length * unitLength;
+					x -= (path.length / 2) * unitLength;
 					if (path.turnDirection === LEFT) {
 						z -= (width * unitLength) / 2;
 					} else {
@@ -340,6 +340,7 @@ class Paths {
 					}
 				}
 			}
+			// console.log(path.axis, path.type, path.startPoint)
 		}
 	}
 	getPaths() {
