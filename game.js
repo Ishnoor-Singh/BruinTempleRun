@@ -49,7 +49,12 @@ export class BruinTempleRun {
 			new StraightLinePath(objectsPath1, 100, NEG_Z),
 			new Turn(NEG_Z, LEFT),
 			new StraightLinePath(objectsPath2, 100, NEG_X)
-			//new Turn(NEG_X, RIGHT)
+			
+			//multiple turns attempt
+			// new StraightLinePath([], 25, NEG_Z),
+			// new Turn(NEG_Z, LEFT),
+			// new StraightLinePath([], 25, NEG_X),
+			// new Turn(NEG_X, RIGHT)
 		];
 		const paths = new Paths(p);
 		this.paths = paths.getPaths();
@@ -198,8 +203,8 @@ export class BruinTempleRun {
 		return this.paused;
 	}
 
-	toggleDuck() {
-		this.state.duck = !this.state.duck;
+	setDuck(d) {
+		this.state.duck = d;
 	}
 
 	isDucking() {
@@ -218,7 +223,7 @@ export class BruinTempleRun {
 		return this.paths;
 	}
 
-	removePathObjects(key) {
+	removePathCoins(key) {
 		// key: indices 0-2 are xyz of path's initial transform (use to find which path the object is on)
 		// 4 is z location, 5 is column (used to find unique coin on path given location and column)
 		let l = this.getPaths().length;
@@ -329,7 +334,7 @@ class Paths {
 				} else if (path.axis === POS_X) {
 					x += path.length * unitLength;
 					if (path.turnDirection === LEFT) {
-						z += (width * unitLength) / 2;
+						z -= (width * unitLength) / 2;
 					} else {
 						z += (width * unitLength) / 2;
 					}
