@@ -10,21 +10,7 @@ import {
 	calculatePlayerCoords,
 	willIntersect,
 } from './drawUitls.js';
-import {
-	NEG_X,
-	NEG_Z,
-	STRAIGHT_LINE_PATH,
-	TURN,
-	POS_X,
-	PLAYER,
-	OBSTACLE,
-	OVERHEAD,
-	COIN,
-	FINISH,
-	VICTORY,
-	DEFEAT,
-	COLUMN_WIDTH,
-} from './constants.js';
+import { NEG_X, NEG_Z, STRAIGHT_LINE_PATH, TURN, POS_X, PLAYER, OBSTACLE, OVERHEAD, COIN, FINISH, VICTORY, DEFEAT, COLUMN_WIDTH } from './constants.js';
 
 const {
 	Vector,
@@ -186,13 +172,14 @@ export class BruinRunScene extends Base_Scene {
 			this.game.startGame();
 		});
 		this.key_triggered_button('Duck', ['k'], () => {
+			var timeout = setTimeout(() => {
+				this.game.unduck();
+			}, 1000);
 			if (!this.game.isDucking()) {
-				this.game.setDuck(true);
-				timeout = setTimeout(() => {
-					this.game.setDuck(false);
-				}, 1500);
-			} else {
-				this.game.setDuck(false);
+				this.game.duck();	
+			}
+			else {
+				this.game.unduck();
 				clearTimeout(timeout);
 			}
 		});
@@ -472,7 +459,12 @@ export class BruinRunScene extends Base_Scene {
 		}
 	}
 
-	setUpCenters(column, zDistance, type, initialTransform) {
+	setUpCenters(
+		column,
+		zDistance,
+		type,
+		initialTransform
+	) {
 		let model_transform = initialTransform;
 
 		model_transform = model_transform.times(
@@ -539,7 +531,8 @@ export class BruinRunScene extends Base_Scene {
 					[...initialTransform.transposed()][3]
 				},${zDistance},${column}`
 			] = obj;
-		} else if (type === FINISH) {
+		}
+		else if (type === FINISH) {
 			const obj = {};
 			obj.center = [...model_transform.transposed()][3];
 			const [cx, cy, cz] = [...model_transform.transposed()][3];
@@ -641,16 +634,14 @@ export class BruinRunScene extends Base_Scene {
 
 				if (collide) this.game.endGame(DEFEAT);
 
-				const reachedFinishLine = Object.keys(this.finishLine).filter(
-					(key) => {
-						const obj = this.finishLine[key];
-						return willIntersect(obj, [
-							playerCoords[0],
-							this.game.isDucking() ? 0 : 1,
-							playerCoords[2],
-						]);
-					}
-				);
+				const reachedFinishLine = Object.keys(this.finishLine).filter((key) => {
+					const obj = this.finishLine[key];
+					return willIntersect(obj, [
+						playerCoords[0],
+						this.game.isDucking() ? 0 : 1,
+						playerCoords[2],
+					]);
+				});
 
 				if (reachedFinishLine.length) this.game.endGame(VICTORY);
 
@@ -721,14 +712,14 @@ export class BruinRunScene extends Base_Scene {
 					new Light(light_position, color(1, 1, 1, 1), 1000),
 				];
 			} else {
-				this.game.gameEnded.outcome === VICTORY
-					? this.showVictoryScreen(context, program_state)
-					: this.game.gameEnded.outcome === DEFEAT
-					? this.showDefeatScreen(context, program_state)
-					: (this.game.gameEnded = {
-							end: false,
-							outcome: '',
-					  });
+				this.game.gameEnded.outcome === VICTORY ? 
+					this.showVictoryScreen(context, program_state) 
+				: this.game.gameEnded.outcome === DEFEAT ? 
+					this.showDefeatScreen(context, program_state)
+				: this.game.gameEnded = {
+					end: false,
+					outcome: ""
+				}
 			}
 		} else {
 			this.showStartScreen(context, program_state);

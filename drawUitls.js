@@ -14,22 +14,7 @@ import {
 	LEFT,
 	RIGHT,
 } from './constants.js';
-const {
-	Vector,
-	Vector3,
-	vec,
-	vec3,
-	vec4,
-	color,
-	hex_color,
-	Matrix,
-	Mat4,
-	Light,
-	Shape,
-	Material,
-	Scene,
-	Texture,
-} = tiny;
+const { hex_color, Mat4, } = tiny;
 
 export function calculatePlayerCoords(baseCoords, direction, column) {
 	let [x, y, z] = baseCoords;
@@ -170,14 +155,14 @@ export function drawObject(
 				plastic.override({ color: hex_color('#fed93d') })
 		  )
 		: type === FINISH
-		? cube.draw(
-				context,
-				program_state,
-				model_transform
-					.times(Mat4.scale(1.5, 1.5, 1.5))
-					.times(Mat4.translation(0, 0.5, 0)),
-				chest
-		  )
+		  ? cube.draw(
+				  context,
+				  program_state,
+				  model_transform
+					  .times(Mat4.scale(1.5, 1.5, 1.5))
+					  .times(Mat4.translation(0, 0.5, 0)),
+				  chest
+			)
 		: cube.draw(
 				context,
 				program_state,
@@ -212,6 +197,9 @@ export function drawCorner(
 	);
 
 	for (let i = 0; i != 12; i++) {
+		turnDirection === LEFT &&
+			cube.draw(context, program_state, model_transform, brick);
+		//
 		let obj = {};
 		obj.center = [...model_transform.transposed()][3];
 		let [cx, cy, cz] = [...model_transform.transposed()][3];
@@ -224,13 +212,16 @@ export function drawCorner(
 			maxY: cy + wy,
 			maxZ: cz + wz,
 		};
-		if (turnDirection === RIGHT) {
-			cube.draw(context, program_state, model_transform, brick);
-			obstacles[`${[...initialTransform.transposed()][3]},${i}`] = obj;
-		}
+		turnDirection === LEFT &&
+			(obstacles[`${[...initialTransform.transposed()][3]},${i}-1`] =
+				obj);
+		//
 		model_transform.post_multiply(
 			Mat4.translation(NUM_COLUMNS * 4 - 2, 0, 0)
 		);
+		turnDirection === RIGHT &&
+			cube.draw(context, program_state, model_transform, brick);
+		//
 		obj = {};
 		obj.center = [...model_transform.transposed()][3];
 		[cx, cy, cz] = [...model_transform.transposed()][3];
@@ -243,10 +234,10 @@ export function drawCorner(
 			maxY: cy + wy,
 			maxZ: cz + wz,
 		};
-		if (turnDirection == LEFT) {
-			cube.draw(context, program_state, model_transform, brick);
-			obstacles[`${[...initialTransform.transposed()][3]},${i}-2`] = obj;
-		}
+		turnDirection === RIGHT &&
+			(obstacles[`${[...initialTransform.transposed()][3]},${i}-2`] =
+				obj);
+		//
 		model_transform.post_multiply(
 			Mat4.translation(-1 * NUM_COLUMNS * 4 + 2, 0, -2)
 		);
@@ -254,9 +245,7 @@ export function drawCorner(
 	// draw opposite side
 	model_transform = initialTransform;
 
-	model_transform = model_transform.times(
-		Mat4.translation(turnDirection === RIGHT ? -10 : -12, 0, -23)
-	);
+	model_transform = model_transform.times(Mat4.translation(-10, 0, -23));
 	for (let i = 0; i != 12; i++) {
 		cube.draw(context, program_state, model_transform, brick);
 		let obj = {};
