@@ -463,7 +463,8 @@ export class BruinRunScene extends Base_Scene {
 		column,
 		zDistance,
 		type,
-		initialTransform
+		initialTransform,
+		axis
 	) {
 		let model_transform = initialTransform;
 
@@ -498,7 +499,13 @@ export class BruinRunScene extends Base_Scene {
 			const obj = {};
 			obj.center = [...model_transform.transposed()][3];
 			const [cx, cy, cz] = [...model_transform.transposed()][3];
-			const [wx, wy, wz] = [3, 2, 3];
+
+			let [wx, wy, wz] = [0, 0, 0];
+			if (axis === NEG_Z) 
+				[wx, wy, wz] = [3, 2, 1];
+			else
+				[wx, wy, wz] = [1, 2, 3];
+
 			obj.bounds = {
 				minX: cx - wx,
 				minY: cy - wy,
@@ -517,7 +524,13 @@ export class BruinRunScene extends Base_Scene {
 			obj.center = [...model_transform.transposed()][3];
 			let [cx, cy, cz] = [...model_transform.transposed()][3];
 			cy = OVERHEAD_Y;
-			const [wx, wy, wz] = [3, 1, 3];
+
+			let [wx, wy, wz] = [0, 0, 0];
+			if (axis === NEG_Z) 
+				[wx, wy, wz] = [3, 0.9, 1];
+			else
+				[wx, wy, wz] = [1, 0.9, 3];
+
 			obj.bounds = {
 				minX: cx - wx,
 				minY: cy - wy,
@@ -594,7 +607,8 @@ export class BruinRunScene extends Base_Scene {
 						object.column,
 						object.z,
 						object.type,
-						e.getInitialTransform()
+						e.getInitialTransform(),
+						e.axis
 					);
 				});
 			} else if (e.type === TURN) {
