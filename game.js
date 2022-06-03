@@ -86,30 +86,6 @@ export class BruinTempleRun {
 		this.state.playerCoords = [x, y, z];
 	}
 
-	recalculateCoordsAfterTurn(turn) {
-		let [x, y, z] = this.state.playerCoords;
-		if (this.state.direction == NEG_X) {
-			z += turn * COLUMN_WIDTH;
-		} else if (this.state.direction == POS_X) {
-			z -= turn * COLUMN_WIDTH;
-		} else if (this.state.direction == NEG_Z) {
-			x += turn * COLUMN_WIDTH;
-		}
-		this.state.playerCoords = [x, y, z];
-	}
-
-	recalculateCoordsAfterSlide(slide) {
-		let [x, y, z] = this.state.playerCoords;
-		if (this.state.direction == NEG_X) {
-			z += slide * COLUMN_WIDTH;
-		} else if (this.state.direction == POS_X) {
-			z -= slide * COLUMN_WIDTH;
-		} else if (this.state.direction == NEG_Z) {
-			x += slide * COLUMN_WIDTH;
-		}
-		this.state.playerCoords = [x, y, z];
-	}
-
 	movePlayerLeft() {
 		if (!this.paused) {
 			if (this.state.direction === NEG_Z) {
@@ -180,7 +156,6 @@ export class BruinTempleRun {
 			new StraightLinePath(objectsPath1, 100, NEG_Z),
 			new Turn(NEG_Z, LEFT),
 			new StraightLinePath(objectsPath2, 100, NEG_X)
-			//new Turn(NEG_X, RIGHT)
 		];
 		const paths = new Paths(p);
 		this.paths = paths.getPaths();
@@ -210,15 +185,18 @@ export class BruinTempleRun {
 	isDucking() {
 		return this.state.duck;
 	}
+
 	endGame(state) {
 		this.gameEnded = {
 			end: true,
 			outcome: state
 		};
 	}
+
 	startGame() {
 		this.gameStarted = true;
 	}
+
 	getPaths() {
 		return this.paths;
 	}
@@ -311,9 +289,9 @@ class Paths {
 				if (path.axis === NEG_Z) {
 					z -= path.length * unitLength;
 				} else if (path.axis === NEG_X) {
-					x -= path.length * unitLength;
-				} else if (path.axis === POS_X) {
 					x += path.length * unitLength;
+				} else if (path.axis === POS_X) {
+					x -= path.length * unitLength;
 				}
 			} else if (path.type === TURN) {
 				path.startPoint = [x, y, z];
@@ -325,14 +303,14 @@ class Paths {
 						x -= (width * unitLength) / 2;
 					}
 				} else if (path.axis === NEG_X) {
-					x -= path.length * unitLength;
+					x += (path.length / 2) * unitLength;
 					if (path.turnDirection === LEFT) {
 						z -= (width * unitLength) / 2;
 					} else {
 						z += (width * unitLength) / 2;
 					}
 				} else if (path.axis === POS_X) {
-					x += path.length * unitLength;
+					x -= (path.length / 2) * unitLength;
 					if (path.turnDirection === LEFT) {
 						z -= (width * unitLength) / 2;
 					} else {
@@ -340,6 +318,7 @@ class Paths {
 					}
 				}
 			}
+			// console.log(path.axis, path.type, path.startPoint)
 		}
 	}
 	getPaths() {
@@ -350,7 +329,6 @@ class Paths {
 class StraightLinePath extends SubPath {
 	constructor(objects, length, axis, startPoint = [0, 0, 0]) {
 		super(startPoint, axis, length);
-		this.allobjects = objects;
 		this.objects = objects;
 		this.type = STRAIGHT_LINE_PATH;
 		this.length = length;
@@ -363,10 +341,6 @@ class StraightLinePath extends SubPath {
 
 	setObjects(objs){
 		this.objects = objs;
-	}
-
-	getAllObjects() {
-		return this.allobjects;
 	}
 }
 
