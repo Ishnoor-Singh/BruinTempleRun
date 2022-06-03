@@ -277,9 +277,9 @@ export function willIntersect(object, coords) {
 		coords[2] >= object.bounds.minZ &&
 		coords[2] <= object.bounds.maxZ
 	) {
-		console.log('x', object.bounds.minX, object.bounds.maxX, coords[0])
-		console.log('y', object.bounds.minY, object.bounds.maxY, coords[1])
-		console.log('z', object.bounds.minZ, object.bounds.maxZ, coords[2])
+		// console.log('x', object.bounds.minX, object.bounds.maxX, coords[0])
+		// console.log('y', object.bounds.minY, object.bounds.maxY, coords[1])
+		// console.log('z', object.bounds.minZ, object.bounds.maxZ, coords[2])
 
 		return true;
 	} else return false;

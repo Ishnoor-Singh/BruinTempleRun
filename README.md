@@ -1,40 +1,7 @@
-# Assignment #2 : Transformations
+# Final project overview: Bruin Temple Run
+This is our final project for CS174a taught by Professor Law. It is based on the mobile game Temple Run.
 
-### Basic Info:
-
-* This assignment is **graded**, and it worth 25 pts (out of 500 pts in total).
-* The deadline is 4/24 11:59 PM.
-    * If the Syllabus and/or class notification made by instructor or TAs indicates a different DDL, please refer to the latest information.
-* Note that some of the images are GIF and don't animate on the PDF, please check the *docs* folder to see the animated GIF (you can ignore the ones in *old_figures* folder).
-
-
-### Repository setup:
-
-This section is previously used for the instruction for GitHub repo setting up. Since we're using the Bruin Learn platform now, you don't need to do the setup. Feel free to continue with the next step. 
-
-Of course, you should unzip the assignment material to your local file system (please unzip if you're reading this line inside the compression file preview now) and you can optionally use git to control your version.
-
-> You can continue with an IDE or using Chrome DevTools and **we strongly recommand the using of the IDE** (For instruction about how to use an IDE, please refer to TA sections). 
-
-> If you want to debug with Chrome DevTools, you can now follow the remaining steps of the assignment. This [debugger instruction](https://docs.google.com/document/d/e/2PACX-1vSi14Mb-_6qLN7wVA4-4NxqYR-3qHLy7ndjB2G0Ba6TCYHn_KGmrPbu-fCDtHkv9QcGBNqLUUdT6fu1/pub) can be helpful when your code does not work. 
-
-### Getting Started:
-
-> If you're using IDE, never mind these steps. IDE will help you with the local server and file content changing.
-
-Open the demo exactly as you did in Assignment 1: Run a dummy web server, navigate to the URL `localhost:8000`, observe the initial animation we provide, open Chrome developer tools, and perform the steps to map your local file folder as a Chrome workspace. 
-
-At that point you'll be safe to edit your files without your edits disappearing or changing the wrong files. Then, proceed as follows.
-
-### Preliminary Steps - Using the Code Library
-
-In order to use our library, `tiny-graphics.js`, you the programmer must provide additional code: Three custom JavaScript classes. Each of the three will be a subclass of a different base class from tiny-graphics.js: `Shape`, `Shader`, and `Scene`. A `Shape` defines a 3D shape to draw, a `Shader` defines some code for coloring in triangles (perhaps as though they were illuminated by light sources), and a `Scene` class tells the 3D canvas and web page what you want to happen (usually, drawing a scene by placing shapes). The three subclasses must define certain methods correctly for the library to work, or nothing will get drawn.
-
-In order to get you started, we have provided examples of those custom subclasses in your code, and you only have to tweak them to do this assignment. One of the Shapes we give, `Cube`, is complete, while the other, `Cube_Outline` is left empty for you to fill in.
-
-The example scene we provided in `example/transform_sandbox.js` is a fully defined working example for you. The class, called `Transforms_Sandbox`, draws the extremely simple scene of boxes and balls you see when you initially run your Assignment files. It has the bare minimum to start using graphics to build a your first scene. Start your coding work there.
-
-### Experimenting with Transforms_Sandbox
+### Introduction
 
 Inside the `display()` method of class `Transforms_Sandbox`, you will see some lines of code that call "`draw()`" on a particular shape, causing one of that shape to appear in the scene. You will also see other lines of code that modify a `model_transform` variable that contains a 4 by 4 matrix. These lines of code perform translations, rotations and scales -- the main math operations you need to understand to get started with graphics. To call them, pass in a 3x1 vector (a `Vec`, or a regular JavaScript array of three floats). In the case of `rotation()`, a scalar (representing the angle in radians) must be also provided along with the `Vec` (representing the axis of rotation).
 
