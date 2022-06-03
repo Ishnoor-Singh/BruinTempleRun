@@ -16,7 +16,7 @@ const INITIAL_GAME_STATE = {
 };
 
 const objectsPath1 = Array.prototype.concat.apply([], [
-	// makeObstacle(OBSTACLE, OBSTACLE, OBSTACLE, 3),
+	makeObstacle(OBSTACLE, OBSTACLE, OBSTACLE, 3),
 	makeObstacle(COIN, COIN, COIN, -10),
 	makeObstacle(COIN, OBSTACLE, OBSTACLE, -30),
 	makeObstacle(OBSTACLE, OBSTACLE, COIN, -50),
