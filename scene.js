@@ -174,7 +174,7 @@ export class BruinRunScene extends Base_Scene {
 		this.key_triggered_button('Duck', ['k'], () => {
 			var timeout = setTimeout(() => {
 				this.game.unduck();
-			}, 1500);
+			}, 1000);
 			if (!this.game.isDucking()) {
 				this.game.duck();	
 			}

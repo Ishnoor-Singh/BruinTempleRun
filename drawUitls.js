@@ -14,22 +14,7 @@ import {
 	LEFT,
 	RIGHT,
 } from './constants.js';
-const {
-	Vector,
-	Vector3,
-	vec,
-	vec3,
-	vec4,
-	color,
-	hex_color,
-	Matrix,
-	Mat4,
-	Light,
-	Shape,
-	Material,
-	Scene,
-	Texture,
-} = tiny;
+const { hex_color, Mat4, } = tiny;
 
 export function calculatePlayerCoords(baseCoords, direction, column) {
 	let [x, y, z] = baseCoords;
