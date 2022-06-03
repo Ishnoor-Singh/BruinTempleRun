@@ -3,8 +3,7 @@ import { POS_X, POS_Z, NEG_X, NEG_Z, STRAIGHT_LINE_PATH, TURN, LEFT, MIDDLE, RIG
 import { makeObstacle } from './obstacles.js';
 const { Mat4 } = tiny;
 
-const COLUMN_WIDTH = 6;
-const INITIAL_SPEED = 10;
+const INITIAL_SPEED = 12;
 
 const INITIAL_GAME_STATE = {
 	playerZDistance: 0,
@@ -17,6 +16,7 @@ const INITIAL_GAME_STATE = {
 };
 
 const objectsPath1 = Array.prototype.concat.apply([], [
+	// makeObstacle(OBSTACLE, OBSTACLE, OBSTACLE, 3),
 	makeObstacle(COIN, COIN, COIN, -10),
 	makeObstacle(COIN, OBSTACLE, OBSTACLE, -30),
 	makeObstacle(OBSTACLE, OBSTACLE, COIN, -50),
@@ -39,7 +39,23 @@ const objectsPath2 = Array.prototype.concat.apply([], [
 	makeObstacle(COIN, OBSTACLE, COIN, -130),
 	makeObstacle(OVERHEAD_WITH_COIN, COIN, OVERHEAD_WITH_COIN, -150),
 	makeObstacle(COIN, NONE, COIN, -170),
-	makeObstacle(FINISH, FINISH, FINISH, -190),	
+]);
+
+const objectsPath3 = Array.prototype.concat.apply([], [
+	makeObstacle(OBSTACLE, COIN, NONE, -10),
+	makeObstacle(COIN, NONE, OVERHEAD_WITH_COIN, -30),
+	makeObstacle(COIN, OBSTACLE, COIN, -50),
+]);
+
+const objectsPath4 = Array.prototype.concat.apply([], [
+	makeObstacle(OBSTACLE, OVERHEAD_WITH_COIN, OBSTACLE, -10),
+	makeObstacle(NONE, COIN, NONE, -15),
+	makeObstacle(NONE, COIN, NONE, -20),
+	makeObstacle(OBSTACLE, OBSTACLE, OVERHEAD_WITH_COIN, -30),
+	makeObstacle(OBSTACLE, OBSTACLE, OVERHEAD_WITH_COIN, -50),
+	makeObstacle(OBSTACLE, NONE, OVERHEAD, -70),
+	makeObstacle(FINISH, FINISH, FINISH, -90),
+	makeObstacle(OBSTACLE, OBSTACLE, OBSTACLE, -100)
 ]);
 
 export class BruinTempleRun {
@@ -48,13 +64,20 @@ export class BruinTempleRun {
 		const p = [
 			new StraightLinePath(objectsPath1, 100, NEG_Z),
 			new Turn(NEG_Z, LEFT),
-			new StraightLinePath(objectsPath2, 100, NEG_X)
+			new StraightLinePath(objectsPath2, 100, NEG_X),
+			new Turn(NEG_X, RIGHT),
+			new StraightLinePath(objectsPath3, 25, NEG_Z),
+			new Turn(NEG_Z, RIGHT),
+			new StraightLinePath(objectsPath4, 50, POS_X),
 			
 			//multiple turns attempt
 			// new StraightLinePath([], 25, NEG_Z),
 			// new Turn(NEG_Z, LEFT),
 			// new StraightLinePath([], 25, NEG_X),
-			// new Turn(NEG_X, RIGHT)
+			// new Turn(POS_X, RIGHT),
+			// new StraightLinePath([], 25, NEG_Z),
+			// new Turn(NEG_Z, RIGHT),
+			// new StraightLinePath([], 25, POS_X),
 		];
 		const paths = new Paths(p);
 		this.paths = paths.getPaths();
@@ -155,7 +178,20 @@ export class BruinTempleRun {
 		const p = [
 			new StraightLinePath(objectsPath1, 100, NEG_Z),
 			new Turn(NEG_Z, LEFT),
-			new StraightLinePath(objectsPath2, 100, NEG_X)
+			new StraightLinePath(objectsPath2, 100, NEG_X),
+			new Turn(NEG_X, RIGHT),
+			new StraightLinePath(objectsPath3, 25, NEG_Z),
+			new Turn(NEG_Z, RIGHT),
+			new StraightLinePath(objectsPath4, 50, POS_X),
+			
+			//multiple turns attempt
+			// new StraightLinePath([], 25, NEG_Z),
+			// new Turn(NEG_Z, LEFT),
+			// new StraightLinePath([], 25, NEG_X),
+			// new Turn(POS_X, RIGHT),
+			// new StraightLinePath([], 25, NEG_Z),
+			// new Turn(NEG_Z, RIGHT),
+			// new StraightLinePath([], 25, POS_X),
 		];
 		const paths = new Paths(p);
 		this.paths = paths.getPaths();
@@ -178,8 +214,12 @@ export class BruinTempleRun {
 		return this.paused;
 	}
 
-	setDuck(d) {
-		this.state.duck = d;
+	duck() {
+		this.state.duck = true;
+	}
+
+	unduck() {
+		this.state.duck = false;
 	}
 
 	isDucking() {
@@ -305,9 +345,9 @@ class Paths {
 				} else if (path.axis === NEG_X) {
 					x += (path.length / 2) * unitLength;
 					if (path.turnDirection === LEFT) {
-						z -= (width * unitLength) / 2;
-					} else {
 						z += (width * unitLength) / 2;
+					} else {
+						z -= (width * unitLength) / 2;
 					}
 				} else if (path.axis === POS_X) {
 					x -= (path.length / 2) * unitLength;

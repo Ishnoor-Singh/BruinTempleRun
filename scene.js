@@ -172,15 +172,15 @@ export class BruinRunScene extends Base_Scene {
 			this.game.startGame();
 		});
 		this.key_triggered_button('Duck', ['k'], () => {
+			var timeout = setTimeout(() => {
+				this.game.unduck();
+			}, 1500);
 			if (!this.game.isDucking()) {
-				this.game.setDuck(true);
-				timeout = setTimeout(() => {
-					this.game.setDuck(false);
-				}, 1500);
+				this.game.duck();	
 			}
 			else {
-				this.game.setDuck(false);
-				clearTimeout(timeout)
+				this.game.unduck();
+				clearTimeout(timeout);
 			}
 		});
 	}
