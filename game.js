@@ -1,5 +1,5 @@
 import { tiny } from './examples/common.js';
-import { NEG_X, NEG_Z, STRAIGHT_LINE_PATH, TURN, POS_X, LEFT, MIDDLE, RIGHT, COIN, OBSTACLE, OVERHEAD, OVERHEAD_WITH_COIN, NONE } from './constants.js';
+import { NEG_X, NEG_Z, STRAIGHT_LINE_PATH, TURN, POS_X, LEFT, MIDDLE, RIGHT, COIN, OBSTACLE, OVERHEAD, OVERHEAD_WITH_COIN, FINISH, NONE } from './constants.js';
 import { makeObstacle } from './obstacles.js';
 const { Mat4 } = tiny;
 
@@ -17,7 +17,9 @@ const INITIAL_GAME_STATE = {
 };
 
 const objects = Array.prototype.concat.apply([], [
-	makeObstacle(COIN, COIN, COIN, -10),
+	makeObstacle(NONE, COIN, NONE, -5),
+	makeObstacle(NONE, COIN, NONE, -10),
+	makeObstacle(COIN, COIN, COIN, -15),
 	makeObstacle(COIN, OBSTACLE, OBSTACLE, -30),
 	makeObstacle(OBSTACLE, OBSTACLE, COIN, -50),
 	makeObstacle(OBSTACLE, COIN, OBSTACLE, -70),
@@ -27,6 +29,7 @@ const objects = Array.prototype.concat.apply([], [
 	makeObstacle(OBSTACLE, COIN, OBSTACLE, -150),
 	makeObstacle(COIN, OBSTACLE, OVERHEAD_WITH_COIN, -170),
 	makeObstacle(OVERHEAD_WITH_COIN, OVERHEAD_WITH_COIN, OVERHEAD_WITH_COIN, -190)
+	//makeObstacle(FINISH, FINISH, FINISH, -50),
 ]);
 
 export class BruinTempleRun {
@@ -36,6 +39,8 @@ export class BruinTempleRun {
 			new StraightLinePath(objects, 100, NEG_Z),
 			new Turn(NEG_Z, LEFT),
 			new StraightLinePath(objects, 100, NEG_X),
+			// new Turn(NEG_X, RIGHT),
+			// new StraightLinePath(objects, 100, NEG_X),
 			// new StraightLinePath(objects, 100, NEG_Z, [0, 0, 0]),
 			// new Turn(RIGHT, [0, 0, 0]),
 			// new StraightLinePath(objects, 100, NEG_X),
@@ -45,7 +50,10 @@ export class BruinTempleRun {
 		this.paused = true;
 		this.speed = INITIAL_SPEED;
 		this.gameStarted = false;
-		this.gameEnded = false;
+		this.gameEnded = {
+			end: false,
+			outcome: ""
+		};
 	}
 
 	setStateToInitial() {
@@ -151,13 +159,18 @@ export class BruinTempleRun {
 		this.setStateToInitial();
 		this.speed = INITIAL_SPEED;
 		if (this.gameEnded) {
-			this.gameEnded = false;
+			this.gameEnded = {
+				end: false,
+				outcome: ""
+			};
 			this.paused = true;
 		}
 		const p = [
 			new StraightLinePath(objects, 100, NEG_Z),
 			new Turn(NEG_Z, LEFT),
-			new StraightLinePath(objects, 100, NEG_X),
+			new StraightLinePath(objects, 100, NEG_Z),
+			// new Turn(NEG_Z, RIGHT, [63.59, -7.00, 32.18]),
+			// new StraightLinePath(objects, 100, NEG_X),
 			// new StraightLinePath(objects, 100, NEG_Z, [0, 0, 0]),
 			// new Turn(RIGHT, [0, 0, 0]),
 			// new StraightLinePath(objects, 100, NEG_X),
@@ -190,8 +203,11 @@ export class BruinTempleRun {
 	isDucking() {
 		return this.state.duck;
 	}
-	endGame() {
-		this.gameEnded = true;
+	endGame(state) {
+		this.gameEnded = {
+			end: true,
+			outcome: state
+		};
 	}
 	startGame() {
 		this.gameStarted = true;

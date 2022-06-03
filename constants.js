@@ -1,9 +1,12 @@
 export const PLAYER = 'player';
 export const OBSTACLE = 'obstacle';
 export const OVERHEAD = 'overhead';
+export const OVERHEAD_WITH_COIN = 'overhead with coin';
 export const COIN = 'coin';
 export const NONE = 'none';
-export const OVERHEAD_WITH_COIN = 'overhead with coin';
+export const FINISH = 'finish';
+export const VICTORY = 'victory';
+export const DEFEAT = 'defeat';
 export const LEFT = -1;
 export const MIDDLE = 0;
 export const RIGHT = 1;

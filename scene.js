@@ -10,7 +10,7 @@ import {
 	calculatePlayerCoords,
 	willIntersect,
 } from './drawUitls.js';
-import { NEG_X, NEG_Z, STRAIGHT_LINE_PATH, TURN, POS_X } from './constants.js';
+import { NEG_X, NEG_Z, STRAIGHT_LINE_PATH, TURN, POS_X, PLAYER, OBSTACLE, OVERHEAD, COIN, FINISH, VICTORY, DEFEAT, COLUMN_WIDTH } from './constants.js';
 
 const {
 	Vector,
@@ -69,6 +69,10 @@ class Base_Scene extends Scene {
 				ambient: 0.8,
 				texture: new Texture('assets/coin.png'),
 			}),
+			finish: new Material(new Textured_Phong(1), {
+				ambient: 1,
+				texture: new Texture('assets/chest.png'),
+			}),
 			start_background: new Material(new defs.Phong_Shader(), {
 				color: color(0, 0.5, 0.5, 1),
 				ambient: 0,
@@ -113,18 +117,7 @@ class Base_Scene extends Scene {
 		// ];
 	}
 }
-const PLAYER = 'player';
-const OBSTACLE = 'obstacle';
-const OVERHEAD = 'overhead';
-const COIN = 'coin';
 
-const LEFT = -1;
-const MIDDLE = 0;
-const RIGHT = 1;
-
-const COLUMN_WIDTH = 6;
-
-const OBSTACLE_Y = 0;
 const OVERHEAD_Y = 1.4;
 
 export class BruinRunScene extends Base_Scene {
@@ -151,6 +144,8 @@ export class BruinRunScene extends Base_Scene {
 		this.coins = {};
 		this.obstacles = {};
 		this.deadCoins = [];
+		this.finishLine = {};
+		this.finishLineCenters = [];
 	}
 
 	make_control_panel() {
@@ -176,6 +171,8 @@ export class BruinRunScene extends Base_Scene {
 			this.coins = {};
 			this.obstacles = {};
 			this.deadCoins = [];
+			this.finishLine = {};
+			this.finishLineCenters = [];
 		});
 		this.key_triggered_button('Start', ['s'], () => {
 			this.game.startGame();
@@ -537,6 +534,25 @@ export class BruinRunScene extends Base_Scene {
 				},${zDistance},${column}`
 			] = obj;
 		}
+		else if (type === FINISH) {
+			const obj = {};
+			obj.center = [...model_transform.transposed()][3];
+			const [cx, cy, cz] = [...model_transform.transposed()][3];
+			const [wx, wy, wz] = [3, 3, 3];
+			obj.bounds = {
+				minX: cx - wx,
+				minY: cy - wy,
+				minZ: cz - wz,
+				maxX: cx + wx,
+				maxY: cy + wy,
+				maxZ: cz + wz,
+			};
+			this.finishLine[
+				`${
+					[...initialTransform.transposed()][3]
+				},${zDistance},${column}`
+			] = obj;
+		}
 		return model_transform;
 	}
 
@@ -570,7 +586,8 @@ export class BruinRunScene extends Base_Scene {
 						e.getInitialTransform(),
 						this.shapes.cube,
 						this.materials.plastic,
-						this.materials.bricks
+						this.materials.bricks,
+						this.materials.finish
 					);
 				});
 				e.objects.forEach((object) => {
@@ -606,7 +623,7 @@ export class BruinRunScene extends Base_Scene {
 		}
 
 		if (this.game.gameStarted) {
-			if (!this.game.gameEnded) {
+			if (!this.game.gameEnded.end) {
 				const playerCoords = this.game.getPlayerCoords();
 				const collide = Object.keys(this.obstacles).some((key) => {
 					const obj = this.obstacles[key];
@@ -617,7 +634,18 @@ export class BruinRunScene extends Base_Scene {
 					]);
 				});
 
-				if (collide) this.game.endGame();
+				if (collide) this.game.endGame(DEFEAT);
+
+				const reachedFinishLine = Object.keys(this.finishLine).filter((key) => {
+					const obj = this.finishLine[key];
+					return willIntersect(obj, [
+						playerCoords[0],
+						this.game.isDucking() ? 0 : 1,
+						playerCoords[2],
+					]);
+				});
+
+				if (reachedFinishLine.length) this.game.endGame(VICTORY);
 
 				const getCoin = Object.keys(this.coins).filter((key) => {
 					const obj = this.coins[key];
@@ -684,8 +712,14 @@ export class BruinRunScene extends Base_Scene {
 					new Light(light_position, color(1, 1, 1, 1), 1000),
 				];
 			} else {
-				// game ended: check if victory or defeat
-				this.showDefeatScreen(context, program_state);
+				this.game.gameEnded.outcome === VICTORY ? 
+					this.showVictoryScreen(context, program_state) 
+				: this.game.gameEnded.outcome === DEFEAT ? 
+					this.showDefeatScreen(context, program_state)
+				: this.game.gameEnded = {
+					end: false,
+					outcome: ""
+				}
 			}
 		} else {
 			this.showStartScreen(context, program_state);

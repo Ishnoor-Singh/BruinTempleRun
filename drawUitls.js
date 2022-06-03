@@ -6,6 +6,7 @@ import {
 	POS_X,
 	POS_Z,
 	COLUMN_WIDTH,
+	FINISH,
 	COIN,
 	OVERHEAD,
 	OBSTACLE_Y,
@@ -121,7 +122,8 @@ export function drawObject(
 	initialTransform,
 	cube,
 	plastic,
-	brick
+	brick,
+	chest
 ) {
 	let model_transform = initialTransform;
 	model_transform = model_transform.times(
@@ -133,9 +135,18 @@ export function drawObject(
 				program_state,
 				model_transform
 					.times(Mat4.scale(0.4, 0.4, 0.4))
-					.times(Mat4.translation(0, 1.7, 0)),
+					.times(Mat4.translation(0, 0, 0)),
 				plastic.override({ color: hex_color('#fed93d') })
 		  )
+		: type === FINISH
+		  ? cube.draw(
+				  context,
+				  program_state,
+				  model_transform
+					  .times(Mat4.scale(1.5, 1.5, 1.5))
+					  .times(Mat4.translation(0, 0.5, 0)),
+				  chest
+			)
 		: cube.draw(
 				context,
 				program_state,
