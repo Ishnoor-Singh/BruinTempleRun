@@ -14,7 +14,7 @@ import {
 	LEFT,
 	RIGHT,
 } from './constants.js';
-const { hex_color, Mat4, } = tiny;
+const { hex_color, Mat4 } = tiny;
 
 export function calculatePlayerCoords(baseCoords, direction, column) {
 	let [x, y, z] = baseCoords;
@@ -155,14 +155,14 @@ export function drawObject(
 				plastic.override({ color: hex_color('#fed93d') })
 		  )
 		: type === FINISH
-		  ? cube.draw(
-				  context,
-				  program_state,
-				  model_transform
-					  .times(Mat4.scale(1.5, 1.5, 1.5))
-					  .times(Mat4.translation(0, 0.5, 0)),
-				  chest
-			)
+		? cube.draw(
+				context,
+				program_state,
+				model_transform
+					.times(Mat4.scale(1.5, 1.5, 1.5))
+					.times(Mat4.translation(0, 0.5, 0)),
+				chest
+		  )
 		: cube.draw(
 				context,
 				program_state,
@@ -245,7 +245,9 @@ export function drawCorner(
 	// draw opposite side
 	model_transform = initialTransform;
 
-	model_transform = model_transform.times(Mat4.translation(-10, 0, -23));
+	model_transform = model_transform.times(
+		Mat4.translation(turnDirection === RIGHT ? -12 : -10, 0, -23)
+	);
 	for (let i = 0; i != 12; i++) {
 		cube.draw(context, program_state, model_transform, brick);
 		let obj = {};
