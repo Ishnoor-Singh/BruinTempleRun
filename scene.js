@@ -109,12 +109,6 @@ class Base_Scene extends Scene {
 			1,
 			100
 		);
-
-		// *** Lights: *** Values of vector or point lights.
-		// const light_position = vec4(0, 5, 5, 1);
-		// program_state.lights = [
-		// 	new Light(light_position, color(1, 1, 1, 1), 1000),
-		// ];
 	}
 }
 
@@ -466,8 +460,6 @@ export class BruinRunScene extends Base_Scene {
 	}
 
 	setUpCenters(
-		context,
-		program_state,
 		column,
 		zDistance,
 		type,
@@ -599,8 +591,6 @@ export class BruinRunScene extends Base_Scene {
 				});
 				e.objects.forEach((object) => {
 					this.setUpCenters(
-						context,
-						program_state,
 						object.column,
 						object.z,
 						object.type,
@@ -669,7 +659,6 @@ export class BruinRunScene extends Base_Scene {
 					!this.deadCoins.includes(getCoin[0]) &&
 					Object.keys(getCoin).length !== 0
 				) {
-					// console.log('got coin', getCoin);
 					this.deadCoins.push(getCoin[0]);
 
 					// getCoin has coin location (z and column) + path it is on
@@ -715,7 +704,7 @@ export class BruinRunScene extends Base_Scene {
 					program_state.camera_transform
 				);
 
-				// setting light on camera
+				// set light on camera
 				const light_position = program_state.camera_transform.times(
 					vec4(0, 0, 0, 1)
 				);
